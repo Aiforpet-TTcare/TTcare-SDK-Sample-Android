@@ -26,7 +26,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="enablesQuestionnaire"
+                android:text="enableQuestionnaire"
                 android:textStyle="bold"
                 android:textColor="@color/color_ffffff"
                 android:paddingLeft="20dp"
