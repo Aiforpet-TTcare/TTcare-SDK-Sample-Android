@@ -1,0 +1,11 @@
+{
+    "service_version": 4,
+    "service_region": "KR",
+    "service_host": "https://api.sdk.sandbox.ai4pet.co.kr",
+    "clientId": "aiforpet-business",
+    "clientKeyId": "PM9J68ATY89GQRHWGNFZMWOJE2YM5G6N",
+    "clientKeySecret": "ab5kQit83SlBwDWUu3SdBcoZ70VKhaCPvd_ODdgDhwK6Op0ChdFHeal816TxxaEIsmvQAYOcKoA4r7vAi4cao8ml3I2fQzYBceU0cosU61ujMTsR2vkfDR1vnfCpFPJ7FQgTVYPTUxWphoKeB_nx-XH7f2iaNfFH6jALKyVrCP7wAh9aBRRZbShN17A8UtmyDYhFUECBx7liYTKCa2IZvKWmkbjccrh4bMOQ9Kix359VQT1dsHD_15f5_DjGnsCqsR9NgJhGIbq_BRPLSYU5KUhGAdbq9cfD012xpgFh81QPeGiTPmS7DaVqUQUDQVI9RIs7CVEVMUWPdCi3P6KZ2g==",
+    "clientKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn8xPx6AtdL1YEgZUG8dXr_rDkN0vjBrXzuslbf7YC8gVhkT__GCYMIXVkGTpZlmynIJezkHfsMmQ03zbh_hBXXcB66ghseFE0X4MYpip2eIZ8HkMz9yK8pXuYt-3duCvzsImSON3IpokHHLKavUH-CIS4CEnKbXgPy2sIroR2VqphVQrCVRzIGoyfh3tLzLhCvk3e7je8E84uZFe_pO4rhw4FqfOpPVYWdZg6S2Di8PcM0vbJPFTJfMdN7spIIFvadUENkNi7w9I6p1G7H88Hq5QUz7efqyPvasdwll5rrwqHoSY0-NQrLrMnSsJMDDCh7t6P0lthezl0wecRyf9GQIDAQAB"
+}
+
+
