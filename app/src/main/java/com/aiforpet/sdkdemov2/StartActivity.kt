@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.aiforpet.pet.check.EyeCameraActivity
 import com.aiforpet.pet.check.SkinCameraActivity
 import com.aiforpet.pet.check.ToothCameraActivity
+import com.aiforpet.sdkdemov2.utils.CryptoUtils
 import com.google.android.material.card.MaterialCardView
 
 import org.json.JSONException
@@ -142,7 +143,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString()) // 선택
 
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -174,7 +175,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("partType", "EAR") // 선택
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -206,7 +207,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("partType", "BELLY") // 선택
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -238,7 +239,7 @@ class StartActivity : AppCompatActivity() {
                 putString("guideUrl", guideBase + "skin.html")
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
                 putBoolean("enableResultView", isEnableResult.isChecked) // 선택
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -269,7 +270,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -300,7 +301,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -333,7 +334,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
 
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk")) // 필수
+                putString("ttConf", CryptoUtils.decrypt(readAssetFile(this@StartActivity, "sdk").trim())) // 필수
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
