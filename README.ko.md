@@ -1,4 +1,4 @@
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
+🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
 이 가이드를 참고하여 TTcare Scan SDK v2.0.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 미디어의 로컬 파일 경로를 반환합니다. API 24 이상이 필요합니다.
 

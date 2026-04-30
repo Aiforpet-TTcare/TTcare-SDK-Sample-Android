@@ -1,4 +1,4 @@
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
+🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
 Use this guide to integrate TTcare Scan SDK v2.0.x into your Android app. This release line moves inference fully on-device, returns local file paths for generated media, and requires API 24 or later.
 
