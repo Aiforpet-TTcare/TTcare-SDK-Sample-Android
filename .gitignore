@@ -16,3 +16,6 @@ local.properties
 
 # AI Work Log
 AI_WORK_LOG.md
+
+# Ignore SDK config
+app/src/main/assets/sdk
