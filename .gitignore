@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# AI Work Log
+AI_WORK_LOG.md
