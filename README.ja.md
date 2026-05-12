@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.4")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。

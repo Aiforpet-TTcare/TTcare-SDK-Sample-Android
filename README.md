@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.4")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
