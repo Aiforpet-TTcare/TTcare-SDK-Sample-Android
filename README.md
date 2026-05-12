@@ -43,15 +43,7 @@ TTcare issues an authentication key file as JSON. The file is provided only once
 **Security rule**
 Do not store the authentication key as plain text inside the app package. Encrypt it or fetch it securely at runtime, then pass the decrypted JSON string as `ttConf`.
 
-Recommended approaches:
-* Android Keystore backed encryption
-* AES encryption with app-side secure storage
-* Secure runtime retrieval from your server
 
-```java
-String ttConf = YourSecurityManager.decryptAuthKey(context);
-bundle.putString("ttConf", ttConf);
-```
 
 ## Launch the camera
 Launching the scan flow follows three steps:

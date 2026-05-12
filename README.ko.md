@@ -43,15 +43,7 @@ TTcare는 JSON 형태의 인증 키 파일을 발급합니다. 파일은 단 한
 **보안 규칙**
 인증 키를 앱 패키지 내에 평문으로 저장하지 마십시오. 암호화하거나 런타임에 안전하게 가져온 후 복호화된 JSON 문자열을 `ttConf`로 전달하십시오.
 
-권장하는 접근 방식:
-* Android Keystore를 활용한 암호화
-* 앱 내 안전한 저장소를 활용한 AES 암호화
-* 런타임에 서버에서 안전하게 키 가져오기
 
-```java
-String ttConf = YourSecurityManager.decryptAuthKey(context);
-bundle.putString("ttConf", ttConf);
-```
 
 ## 카메라 실행하기
 스캔 흐름은 다음 3단계로 진행됩니다:
