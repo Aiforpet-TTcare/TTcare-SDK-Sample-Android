@@ -56,13 +56,13 @@ class StartActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
-            // SDK(ResultActivty)에서 최종 반환된 결과 수신
+            // Receive final result from SDK (ResultActivity)
             val resultData = result.data?.getStringExtra("result")
             val hasSymptoms = result.data?.getBooleanExtra("hasSymptoms", false) ?: false
 
             if (resultData != null) {
                 try {
-                    // JSON을 이쁘게 포맷팅해서 텍스트뷰에 출력
+                    // Format JSON prettily and output to TextView
                     val json = JSONObject(resultData)
                     resultTxt.text = json.toString(4)
                 } catch (e: Exception) {
@@ -83,10 +83,10 @@ class StartActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { v, windowInsets ->
             val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            // 가져온 inset 값을 뷰의 패딩으로 적용합니다.
+            // Apply retrieved inset values as view padding.
             v.setPadding(systemBarInsets.left, 0, systemBarInsets.right, 0)
 
-            // 리스너에게 모든 inset을 소비했다고 알립니다.
+            // Notify the listener that all insets have been consumed.
             WindowInsetsCompat.CONSUMED
         }
 
@@ -124,14 +124,14 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, EyeCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "DOG") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "DOG") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -139,10 +139,10 @@ class StartActivity : AppCompatActivity() {
                 } catch (e: JSONException) {
                     throw RuntimeException(e)
                 }
-                putString("petAdditionalInfo", petAdditionalInfo.toString()) // 선택
+                putString("petAdditionalInfo", petAdditionalInfo.toString()) // Optional
 
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -156,14 +156,14 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "DOG") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "DOG") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -172,9 +172,9 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "EAR") // 선택
+                putString("partType", "EAR") // Optional
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -188,14 +188,14 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "DOG") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "DOG") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -204,9 +204,9 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "BELLY") // 선택
+                putString("partType", "BELLY") // Optional
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -220,12 +220,12 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "DOG") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
+                putString("petType", "DOG") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -234,11 +234,11 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "FOOT") // 선택
+                putString("partType", "FOOT") // Optional
                 putString("guideUrl", guideBase + "skin.html")
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -252,14 +252,14 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, ToothCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "DOG") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "DOG") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -269,7 +269,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -283,14 +283,14 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, EyeCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "CAT") // 필수
-                putString("userId", "userId") // 필수
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "CAT") // Required
+                putString("userId", "userId") // Required
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -300,7 +300,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -314,15 +314,15 @@ class StartActivity : AppCompatActivity() {
 
             val intent = Intent(this@StartActivity, ToothCameraActivity::class.java)
             val bundle = Bundle().apply {
-                putString("petType", "CAT") // 필수
-                putString("userId", "userId") // 필수
-                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // 선택
-                putBoolean("enableResultView", isEnableResult.isChecked) // 선택
+                putString("petType", "CAT") // Required
+                putString("userId", "userId") // Required
+                putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
+                putBoolean("enableResultView", isEnableResult.isChecked) // Optional
 
-                putString("petId", "petId") // 선택
-                putString("petBirthday", "2025-01-01") // 선택
-                putString("petBreedName", "MBSMIN") // 선택
-                putString("petGender", "M") // 선택
+                putString("petId", "petId") // Optional
+                putString("petBirthday", "2025-01-01") // Optional
+                putString("petBreedName", "MBSMIN") // Optional
+                putString("petGender", "M") // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -333,7 +333,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
 
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // 필수
+                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -363,12 +363,12 @@ class StartActivity : AppCompatActivity() {
 
         fun getCurrentLanguageCategory(): String {
             val currentLocale = Locale.getDefault()
-            val languageCode = currentLocale.language // 예: "ko", "ja", "en"
+            val languageCode = currentLocale.language // ex: "ko", "ja", "en"
 
             return when (languageCode) {
                 "ko" -> "ko"
                 "ja" -> "ja"
-                else -> "en" // 한국어나 일본어가 아니면 '글로벌'로 분류
+                else -> "en" // Classify as 'global' if not Korean or Japanese
             }
         }
     }

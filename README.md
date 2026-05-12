@@ -32,6 +32,12 @@ dependencies {
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
 
 ## Set up the authentication key
+
+> [!IMPORTANT]
+> **Demo App License Key Notice**
+> This sample project does NOT include an actual license key (`sdk` file) in the `assets` folder.
+> To run the sample app properly, you must place your issued license key file in the `app/src/main/assets/sdk` directory.
+
 TTcare issues an authentication key file as JSON. The file is provided only once, so treat it as a secret and plan for re-issuance if it is lost.
 
 **Security rule**
