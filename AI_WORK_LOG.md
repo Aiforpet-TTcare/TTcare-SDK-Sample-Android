@@ -2,6 +2,10 @@
 ## 프로젝트: TTcare-SDK-Sample-Android
 ## 목적: AI와의 작업 내역 추적 및 관리
 
+## [중요] 프로젝트 공통 규칙 및 인프라
+- **배포 방식:** 홈페이지(com.aiforpet.sdk)는 `main` 브랜치에 Push되면 GitHub Actions(`.github/workflows/firebase-hosting-merge.yml`)를 통해 Firebase로 **자동 배포**됨. 수동 배포(`npm run deploy` 등) 시도하지 말 것. 그 외 작업 전 프로젝트 내 CI/CD 파이프라인 존재 여부를 확인할 것.
+- **문서 동기화:** TTcareSDKSample의 README(다국어) 파일이 원본이며, 홈페이지 문서 수정 시 DevHomepage 쪽으로 항상 복사해서 맞출 것.
+
 
 ### [2026-05-13] 홈페이지(DevHomepage) SDK 버전 및 가이드 동기화
 - **작업 내용:** 
