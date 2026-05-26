@@ -1,5 +1,9 @@
 # Git Work Log
 
+### [2026-05-26]
+- **작업 내용:** SDK 버전 2.0.6 업데이트 (scansdkLib 버전을 2.0.5에서 2.0.6으로 변경, README 다국어 파일에 이탈리아어/태국어 지원 추가 내역 반영)
+- **Git 처리:** `gradle/libs.versions.toml`, `README.md`, `README.ko.md`, `README.ja.md`, `AI_WORK_LOG.md`, `GIT_WORK_LOG.md` 커밋 및 푸시
+
 ### [2026-05-13 09:22:22]
 - **작업 내용:** 홈페이지(DevHomepage) 연동 및 버전 동기화 작업 내역 AI_WORK_LOG.md 업데이트
 - **Git 처리:** `AI_WORK_LOG.md`, `GIT_WORK_LOG.md` 로컬 커밋 및 푸시

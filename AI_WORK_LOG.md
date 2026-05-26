@@ -6,6 +6,13 @@
 - **배포 방식:** 홈페이지(com.aiforpet.sdk)는 `main` 브랜치에 Push되면 GitHub Actions(`.github/workflows/firebase-hosting-merge.yml`)를 통해 Firebase로 **자동 배포**됨. 수동 배포(`npm run deploy` 등) 시도하지 말 것. 그 외 작업 전 프로젝트 내 CI/CD 파이프라인 존재 여부를 확인할 것.
 - **문서 동기화:** TTcareSDKSample의 README(다국어) 파일이 원본이며, 홈페이지 문서 수정 시 DevHomepage 쪽으로 항상 복사해서 맞출 것.
 
+### [2026-05-26] Android SDK 버전 업데이트 (2.0.6)
+- **작업 내용:**
+  - `gradle/libs.versions.toml` 내 `scansdkLib` 버전을 2.0.6으로 업데이트
+  - 다국어 README 파일(`README.md`, `README.ko.md`, `README.ja.md`)의 Maven Central 설치 스니펫을 2.0.6으로 변경
+  - v2.0.6 변경 사항으로 이탈리아어 및 태국어 지원 추가 내역 반영
+- **영향도 확인:** 앱 코드 호출 흐름에는 변경이 없으며, Gradle 의존성과 GitHub 안내 문서가 최신 SDK 버전으로 동기화됨.
+- **테스트 확인:** `./gradlew :app:testDebugUnitTest` 성공.
 
 ### [2026-05-13] 홈페이지(DevHomepage) SDK 버전 및 가이드 동기화
 - **작업 내용:** 

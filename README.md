@@ -8,6 +8,7 @@ Use this guide to integrate TTcare Scan SDK v2.0.x into your Android app. This r
 * AI diagnosis no longer depends on a server round-trip
 * Result image URLs changed from remote `https://...` URLs to local `file://...` paths
 * Added `LibraryClass.clearSdkScanCache()` for generated media cleanup
+* Added Italian and Thai language support in v2.0.6
 
 ## Prerequisites
 * Android 7.0+ (minSdk 24)
@@ -26,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.5")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.6")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.

@@ -8,6 +8,7 @@
 * AI 진단 시 더 이상 서버와의 통신(round-trip)에 의존하지 않습니다.
 * 결과 이미지 URL이 원격 `https://...` URL에서 로컬 `file://...` 경로로 변경되었습니다.
 * 생성된 미디어 캐시 정리를 위한 `LibraryClass.clearSdkScanCache()`가 추가되었습니다.
+* v2.0.6에서 이탈리아어 및 태국어 지원이 추가되었습니다.
 
 ## 사전 요구 사항
 * Android 7.0 이상 (minSdk 24)
@@ -26,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.5")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.6")
 }
 ```
 SDK가 CAMERA 및 INTERNET 권한을 선언하고 있으므로 자동으로 프로젝트의 Manifest에 병합됩니다.
