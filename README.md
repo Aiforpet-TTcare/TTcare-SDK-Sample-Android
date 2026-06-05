@@ -81,13 +81,15 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * `userId`
 * `petType` (DOG or CAT)
 * `ttConf`
-* `petBirthday` (yyyy-MM-dd)
-* `petBreedName`
-* `petGender` (M, F, MC, FC)
+
+**Required for skin scans:**
+* `partType` (EAR, BELLY, FOOT)
 
 **Optional fields:**
 * `petId`
-* `partType` (EAR, BELLY, FOOT) for skin scans
+* `petBirthday` (yyyy-MM-dd)
+* `petBreedName`
+* `petGender` (M, F, MC, FC)
 * `petAdditionalInfo`
 * `guideUrl`
 * `isAnalysisEnabled`
@@ -119,7 +121,7 @@ scanLauncher.launch(intent);
 ```
 
 ### Skin scan note
-Skin scans support multiple sub-parts. If you already know the capture target, pass `partType`.
+Skin scans support multiple sub-parts. When launching `SkinCameraActivity`, pass `partType` as a required field.
 
 ```java
 Intent intent = new Intent(this, SkinCameraActivity.class);

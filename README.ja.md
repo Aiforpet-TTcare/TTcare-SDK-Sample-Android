@@ -81,13 +81,15 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * `userId`
 * `petType` (DOG または CAT)
 * `ttConf`
-* `petBirthday` (yyyy-MM-dd)
-* `petBreedName`
-* `petGender` (M, F, MC, FC)
+
+**皮膚スキャン時の必須フィールド:**
+* `partType` (EAR, BELLY, FOOT)
 
 **オプションのフィールド:**
 * `petId`
-* `partType` (皮膚スキャンの場合: EAR, BELLY, FOOT)
+* `petBirthday` (yyyy-MM-dd)
+* `petBreedName`
+* `petGender` (M, F, MC, FC)
 * `petAdditionalInfo`
 * `guideUrl`
 * `isAnalysisEnabled`
@@ -119,7 +121,7 @@ scanLauncher.launch(intent);
 ```
 
 ### 皮膚スキャンの注意事項
-皮膚のスキャンは複数のサブパーツをサポートしています。撮影対象がわかっている場合は `partType` を渡してください。
+皮膚のスキャンは複数のサブパーツをサポートしています。`SkinCameraActivity` を起動する場合は、`partType` を必須フィールドとして渡してください。
 
 ```java
 Intent intent = new Intent(this, SkinCameraActivity.class);
