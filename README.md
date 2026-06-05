@@ -1,17 +1,18 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-Use this guide to integrate TTcare Scan SDK v2.0.x into your Android app. This release line moves inference fully on-device, returns local file paths for generated media, and requires API 24 or later.
+Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns local file paths for generated media, and requires API 28 or later.
 
-## What's new in v2.0.x
+## What's new in v2.x
 * Target SDK moved to API 36
-* Minimum SDK moved to API 24 because ONNX Runtime now requires API 24+
+* Minimum SDK moved to API 28 because ONNX Runtime now requires API 28+
 * AI diagnosis no longer depends on a server round-trip
 * Result image URLs changed from remote `https://...` URLs to local `file://...` paths
 * Added `LibraryClass.clearSdkScanCache()` for generated media cleanup
-* Added Italian and Thai language support in v2.0.6
+* Supported result screen languages include English, Korean, Japanese, Italian, Swedish, and Thai
+* Added `enablePdfShare` in v2.1.0 to control the PDF share button on the built-in result screen
 
 ## Prerequisites
-* Android 7.0+ (minSdk 24)
+* Android 9.0+ (minSdk 28)
 * Target SDK 36 recommended
 * Java 17 recommended
 * Supported ABIs: `armeabi-v7a`, `arm64-v8a`
@@ -27,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.6")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.0")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
@@ -91,6 +92,9 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * `guideUrl`
 * `isAnalysisEnabled`
 * `isFlashMode`
+* `enablesQuestionnaire`
+* `enableResultView`
+* `enablePdfShare`
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -106,6 +110,9 @@ bundle.putString("petGender", "MC");
 bundle.putString("petId", "your_pet_id_123");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/en/dog/eye.html");
 bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
+bundle.putBoolean("enablesQuestionnaire", true);
+bundle.putBoolean("enableResultView", true);
+bundle.putBoolean("enablePdfShare", true);
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -241,7 +248,7 @@ The SDK ships with consumer Proguard rules, but if camera scanning crashes in re
 ## Migration notes from v1.7.x
 * Diagnosis now runs on-device
 * Result image references are local files, not remote URLs
-* Minimum SDK is now 24
+* Minimum SDK is now 28
 * Cache cleanup is now an explicit host-app responsibility
 
 ## Support

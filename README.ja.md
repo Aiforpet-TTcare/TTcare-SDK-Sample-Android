@@ -1,17 +1,18 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-本ガイドを利用して、TTcare Scan SDK v2.0.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成されたメディアはローカルのファイルパスで返されます。API 24 以上が必要です。
+本ガイドを利用して、TTcare Scan SDK v2.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成されたメディアはローカルのファイルパスで返されます。API 28 以上が必要です。
 
-## v2.0.x の新機能
+## v2.x の新機能
 * Target SDK が API 36 に移行されました
-* ONNX Runtime が API 24+ を必要とするため、Minimum SDK が API 24 に移行されました
+* ONNX Runtime が API 28+ を必要とするため、Minimum SDK が API 28 に移行されました
 * AI 診断において、サーバー通信(round-trip)に依存しなくなりました
 * 結果画像のURLがリモートの `https://...` からローカルの `file://...` パスに変更されました
 * 生成されたメディアのキャッシュをクリアするための `LibraryClass.clearSdkScanCache()` が追加されました
-* v2.0.6 でイタリア語とタイ語のサポートが追加されました
+* 結果画面の対応言語は英語、韓国語、日本語、イタリア語、スウェーデン語、タイ語です
+* v2.1.0 で内蔵結果画面の PDF 共有ボタンを制御する `enablePdfShare` オプションが追加されました
 
 ## 動作要件
-* Android 7.0+ (minSdk 24)
+* Android 9.0+ (minSdk 28)
 * Target SDK 36 推奨
 * Java 17 推奨
 * サポートされている ABI: `armeabi-v7a`, `arm64-v8a`
@@ -27,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.6")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.0")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。
@@ -91,6 +92,9 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * `guideUrl`
 * `isAnalysisEnabled`
 * `isFlashMode`
+* `enablesQuestionnaire`
+* `enableResultView`
+* `enablePdfShare`
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -106,6 +110,9 @@ bundle.putString("petGender", "MC");
 bundle.putString("petId", "your_pet_id_123");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ja/dog/eye.html");
 bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
+bundle.putBoolean("enablesQuestionnaire", true);
+bundle.putBoolean("enableResultView", true);
+bundle.putBoolean("enablePdfShare", true);
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -241,7 +248,7 @@ SDK には利用者向けの Proguard ルールが付属していますが、リ
 ## v1.7.x からの移行に関する注意点
 * 診断がデバイス上(on-device)で実行されるようになりました
 * 結果画像の参照がリモート URL からローカルファイルパスに変更されました
-* Minimum SDK が 24 になりました
+* Minimum SDK が 28 になりました
 * キャッシュのクリアはホストアプリ側で明示的に行う必要があります
 
 ## サポート

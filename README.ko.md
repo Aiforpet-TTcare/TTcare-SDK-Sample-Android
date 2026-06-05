@@ -1,17 +1,18 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-이 가이드를 참고하여 TTcare Scan SDK v2.0.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 미디어의 로컬 파일 경로를 반환합니다. API 24 이상이 필요합니다.
+이 가이드를 참고하여 TTcare Scan SDK v2.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 미디어의 로컬 파일 경로를 반환합니다. API 28 이상이 필요합니다.
 
-## v2.0.x의 새로운 기능
+## v2.x의 새로운 기능
 * Target SDK가 API 36으로 상향되었습니다.
-* ONNX Runtime이 이제 API 24+를 요구함에 따라 Minimum SDK가 API 24로 상향되었습니다.
+* ONNX Runtime이 이제 API 28+를 요구함에 따라 Minimum SDK가 API 28로 상향되었습니다.
 * AI 진단 시 더 이상 서버와의 통신(round-trip)에 의존하지 않습니다.
 * 결과 이미지 URL이 원격 `https://...` URL에서 로컬 `file://...` 경로로 변경되었습니다.
 * 생성된 미디어 캐시 정리를 위한 `LibraryClass.clearSdkScanCache()`가 추가되었습니다.
-* v2.0.6에서 이탈리아어 및 태국어 지원이 추가되었습니다.
+* 결과 화면 지원 언어는 영어, 한국어, 일본어, 이탈리아어, 스웨덴어, 태국어입니다.
+* v2.1.0에서 내장 결과 화면의 PDF 공유 버튼을 제어하는 `enablePdfShare` 옵션이 추가되었습니다.
 
 ## 사전 요구 사항
-* Android 7.0 이상 (minSdk 24)
+* Android 9.0 이상 (minSdk 28)
 * Target SDK 36 권장
 * Java 17 권장
 * 지원되는 ABI: `armeabi-v7a`, `arm64-v8a`
@@ -27,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.0.6")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.0")
 }
 ```
 SDK가 CAMERA 및 INTERNET 권한을 선언하고 있으므로 자동으로 프로젝트의 Manifest에 병합됩니다.
@@ -91,6 +92,9 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * `guideUrl`
 * `isAnalysisEnabled`
 * `isFlashMode`
+* `enablesQuestionnaire`
+* `enableResultView`
+* `enablePdfShare`
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -106,6 +110,9 @@ bundle.putString("petGender", "MC");
 bundle.putString("petId", "your_pet_id_123");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ko/dog/eye.html");
 bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
+bundle.putBoolean("enablesQuestionnaire", true);
+bundle.putBoolean("enableResultView", true);
+bundle.putBoolean("enablePdfShare", true);
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -241,7 +248,7 @@ SDK에는 라이브러리 사용자용 Proguard 규칙이 포함되어 있지만
 ## v1.7.x 마이그레이션 참고
 * 진단이 기기 내(on-device)에서 실행됩니다.
 * 결과 이미지 참조가 원격 URL에서 로컬 파일 경로로 변경되었습니다.
-* 최소 지원 버전(Minimum SDK)이 24로 상향되었습니다.
+* 최소 지원 버전(Minimum SDK)이 28로 상향되었습니다.
 * 캐시 정리를 호스트 앱에서 직접 명시적으로 처리해야 합니다.
 
 ## 고객 지원

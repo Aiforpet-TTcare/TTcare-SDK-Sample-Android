@@ -35,6 +35,7 @@ class StartActivity : AppCompatActivity() {
 
     private lateinit var isenablesQuestionnaire: CheckBox
     private lateinit var isEnableResult: CheckBox
+    private lateinit var isEnablePdfShare: CheckBox
 
     private lateinit var mainView: LinearLayout
 
@@ -97,6 +98,7 @@ class StartActivity : AppCompatActivity() {
     private fun init() {
         isenablesQuestionnaire = findViewById(R.id.isenablesQuestionnaire)
         isEnableResult = findViewById(R.id.isEnableResult)
+        isEnablePdfShare = findViewById(R.id.isEnablePdfShare)
 
         mainView = findViewById(R.id.mainView)
         resultView = findViewById(R.id.resultView)
@@ -128,10 +130,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -160,10 +163,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -192,10 +196,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -224,7 +229,7 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
 
                 val petAdditionalInfo = JSONObject()
@@ -238,6 +243,7 @@ class StartActivity : AppCompatActivity() {
                 putString("guideUrl", guideBase + "skin.html")
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
                 putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
             }
             intent.putExtras(bundle)
@@ -256,10 +262,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -287,10 +294,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 val petAdditionalInfo = JSONObject()
                 try {
@@ -318,10 +326,11 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
+                putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "MBSMIN") // Optional
+                putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
 
                 val petAdditionalInfo = JSONObject()
