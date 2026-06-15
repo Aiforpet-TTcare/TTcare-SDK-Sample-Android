@@ -1,6 +1,5 @@
 package com.aiforpet.sdkdemov2
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -26,9 +25,6 @@ import com.google.android.material.card.MaterialCardView
 import org.json.JSONException
 import org.json.JSONObject
 
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
 import java.util.Locale
 
 class StartActivity : AppCompatActivity() {
@@ -52,6 +48,7 @@ class StartActivity : AppCompatActivity() {
     private lateinit var resultTxt: TextView
     private var selectPart: String = ""
     private var petType: String = ""
+    private val sdkKey = "Enter your issued SDK key"
 
     private val scanLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -130,7 +127,7 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "petBreedName") // Optional
+                putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
@@ -145,7 +142,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString()) // Optional
 
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -163,7 +160,7 @@ class StartActivity : AppCompatActivity() {
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "petBreedName") // Optional
+                putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
@@ -176,9 +173,9 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "EAR") // Optional
+                putString("partType", "EAR") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -209,9 +206,9 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "BELLY") // Optional
+                putString("partType", "BELLY") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -239,12 +236,12 @@ class StartActivity : AppCompatActivity() {
                     throw RuntimeException(e)
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
-                putString("partType", "FOOT") // Optional
+                putString("partType", "FOOT") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -276,7 +273,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -308,7 +305,7 @@ class StartActivity : AppCompatActivity() {
                 }
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "eye.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -330,7 +327,7 @@ class StartActivity : AppCompatActivity() {
 
                 putString("petId", "petId") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
-                putString("petBreedName", "petBreedName") // Optional
+                putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
 
                 val petAdditionalInfo = JSONObject()
@@ -342,7 +339,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petAdditionalInfo", petAdditionalInfo.toString())
 
                 putString("guideUrl", guideBase + "tooth.html")
-                putString("ttConf", readAssetFile(this@StartActivity, "sdk").trim()) // Required
+                putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
             scanLauncher.launch(intent)
@@ -350,26 +347,6 @@ class StartActivity : AppCompatActivity() {
     }
 
     companion object {
-        /**
-         * Reads an asset file and returns its contents as a String.
-         */
-        fun readAssetFile(context: Context, filename: String): String {
-            val builder = StringBuilder()
-            try {
-                context.assets.open(filename).use { inputStream ->
-                    BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                        var line: String?
-                        while (reader.readLine().also { line = it } != null) {
-                            builder.append(line).append('\n')
-                        }
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            return builder.toString()
-        }
-
         fun getCurrentLanguageCategory(): String {
             val currentLocale = Locale.getDefault()
             val languageCode = currentLocale.language // ex: "ko", "ja", "en"

@@ -1,15 +1,15 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-이 가이드를 참고하여 TTcare Scan SDK v2.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 미디어의 로컬 파일 경로를 반환합니다. API 28 이상이 필요합니다.
+이 가이드를 참고하여 TTcare Scan SDK v2.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 결과 이미지는 HTTPS URL로 반환합니다. API 28 이상이 필요합니다.
 
 ## v2.x의 새로운 기능
 * Target SDK가 API 36으로 상향되었습니다.
 * ONNX Runtime이 이제 API 28+를 요구함에 따라 Minimum SDK가 API 28로 상향되었습니다.
 * AI 진단 시 더 이상 서버와의 통신(round-trip)에 의존하지 않습니다.
-* 결과 이미지 URL이 원격 `https://...` URL에서 로컬 `file://...` 경로로 변경되었습니다.
+* 결과 이미지 참조는 HTTPS URL로 반환되므로 호스트 앱에서 바로 로드할 수 있습니다.
 * 생성된 미디어 캐시 정리를 위한 `LibraryClass.clearSdkScanCache()`가 추가되었습니다.
 * 결과 화면 지원 언어는 영어, 한국어, 일본어, 이탈리아어, 스웨덴어, 태국어입니다.
-* v2.1.0에서 내장 결과 화면의 PDF 공유 버튼을 제어하는 `enablePdfShare` 옵션이 추가되었습니다.
+* `enablePdfShare` 옵션으로 내장 결과 화면의 PDF 공유 버튼을 제어할 수 있습니다.
 
 ## 사전 요구 사항
 * Android 9.0 이상 (minSdk 28)
@@ -28,22 +28,22 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.0")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.1")
 }
 ```
 SDK가 CAMERA 및 INTERNET 권한을 선언하고 있으므로 자동으로 프로젝트의 Manifest에 병합됩니다.
 
-## 인증 키 설정
+## SDK key 설정
 
 > [!IMPORTANT]
-> **데모 앱 라이선스 키 안내**
-> 본 샘플 프로젝트의 `assets` 폴더에는 SDK 구동을 위한 실제 라이선스 키(`sdk` 파일)가 포함되어 있지 않습니다.
-> 샘플 앱을 정상적으로 실행하려면 별도로 신청하여 발급받은 라이선스 키 파일을 `app/src/main/assets/sdk` 경로에 직접 추가해야 합니다.
+> **데모 앱 SDK key 안내**
+> 본 샘플 프로젝트는 `Enter your issued SDK key` 플레이스홀더 값을 사용합니다.
+> 샘플 앱을 실행하기 전에 프로젝트용으로 발급받은 SDK key로 교체하세요.
 
-TTcare는 JSON 형태의 인증 키 파일을 발급합니다. 파일은 단 한 번만 제공되므로 기밀로 다루어야 하며, 분실 시 재발급 계획을 세워야 합니다.
+TTcare는 고객사 프로젝트별 SDK key를 발급합니다. 이 값은 secret으로 취급하고 앱 보안 정책에 따라 관리하세요.
 
 **보안 규칙**
-인증 키를 앱 패키지 내에 평문으로 저장하지 마십시오. 암호화하거나 런타임에 안전하게 가져온 후 복호화된 JSON 문자열을 `ttConf`로 전달하십시오.
+실제 운영용 SDK key를 공개 소스 코드에 노출하지 마십시오. 안전하게 저장하거나 런타임에 가져온 뒤, SDK Activity 실행 시 발급받은 SDK key 문자열을 `sdkKey`로 전달하세요.
 
 
 
@@ -77,34 +77,33 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * 치아(Teeth): `ToothCameraActivity`
 
 ### 3. 요청 파라미터 전달
-**필수 필드:**
-* `userId`
-* `petType` (DOG 또는 CAT)
-* `ttConf`
 
-**피부 스캔 시 필수 필드:**
-* `partType` (EAR, BELLY, FOOT)
-
-**선택 필드:**
-* `petId`
-* `petBirthday` (yyyy-MM-dd)
-* `petBreedName`
-* `petGender` (M, F, MC, FC)
-* `petAdditionalInfo`
-* `guideUrl`
-* `isAnalysisEnabled`
-* `isFlashMode`
-* `enablesQuestionnaire`
-* `enableResultView`
-* `enablePdfShare`
+| 이름 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `userId` | String | 예 | 고객사 서비스의 사용자 식별자 |
+| `petType` | String | 예 | `DOG` 또는 `CAT` |
+| `sdkKey` | String | 예 | 프로젝트용으로 발급받은 SDK key |
+| `partType` | String | 피부 검사 시 필수 | `EAR`, `BELLY`, `FOOT` 중 하나. `SkinCameraActivity` 실행 시 필수 |
+| `petId` | String | 아니오 | 고객사 서비스의 반려동물 식별자. 전달 시 결과 데이터에 포함됩니다 |
+| `petBirthday` | String | 아니오 | 반려동물 생일. `yyyy-MM-dd` 형식 권장 |
+| `petBreedName` | String | 아니오 | 품종명. 서비스에서 품종을 매핑하는 경우 별도 Breed List 기준 사용 권장 |
+| `petGender` | String | 아니오 | `M`, `F`, `MC`, `FC` |
+| `petAdditionalInfo` | String | 아니오 | 추가 메타데이터. JSON 문자열 권장 |
+| `guideUrl` | String | 아니오 | SDK 카메라 가이드 웹뷰에 표시할 URL |
+| `isAnalysisEnabled` | Boolean/String | 아니오 | 설정된 경우 파트너 분석 래퍼 모드 활성화 |
+| `isFlashMode` | Boolean | 아니오 | 카메라 플래시 기본 활성화 여부. 기본값: `false` |
+| `enablesQuestionnaire` | Boolean | 아니오 | SDK 문진 사용 여부. 기본값: `true` |
+| `enableResultView` | Boolean | 아니오 | SDK 내장 결과 화면 표시 여부. 기본값: `true` |
+| `enablePdfShare` | Boolean | 아니오 | 내장 결과 화면의 PDF 공유 버튼 표시 여부. `enableResultView=true`일 때 의미가 있습니다 |
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
 Bundle bundle = new Bundle();
+String sdkKey = "Enter your issued SDK key";
 
 bundle.putString("petType", "DOG");
 bundle.putString("userId", "your_user_id");
-bundle.putString("ttConf", decryptedJsonKey);
+bundle.putString("sdkKey", sdkKey);
 bundle.putString("petBirthday", "2020-03-15");
 bundle.putString("petBreedName", "Maltese");
 bundle.putString("petGender", "MC");
@@ -143,70 +142,168 @@ SDK는 `scanLauncher`를 통해 최종 진단 결과가 포함된 JSON 문자열
 
 문진(Questionnaire)이 활성화된 경우, 최종 상태는 스캔 결과와 문진 답변을 모두 반영합니다.
 
-### 로컬 이미지 경로 처리
-v2.0.x 버전부터 히트맵과 크롭 이미지는 원격 URL이 아닌 로컬 `file://...` 경로로 반환됩니다. 접두사를 제거하고 디스크에서 파일을 로드하세요.
+| 문진 응답 | AI 스캔 결과 | 최종 상태 |
+| --- | --- | --- |
+| 증상 있음 | 이상 징후 감지 | `WARNING` |
+| 증상 없음 | 이상 징후 감지 | `CAUTION` |
+| 증상 없음 | 이상 징후 없음 | `NORMAL` |
+| 증상 있음 | 이상 징후 없음 | `CAUTION` |
+
+### 결과 이미지 표시
+히트맵과 크롭 이미지는 HTTPS URL로 반환됩니다. 호스트 앱은 SDK가 생성한 로컬 파일을 직접 읽을 필요 없이, 반환된 URL을 이미지 로딩 라이브러리로 바로 로드하면 됩니다.
 
 ```java
-String imageUrl = "file:///data/user/0/.../overlay.png";
+String imageUrl = symptom.optString("heatmapUrl");
 
 Picasso.get()
-    .load(new File(imageUrl.replace("file://", "")))
+    .load(imageUrl)
     .into(imageView);
 ```
 
 ### 결과 스키마 개요
-최상위 필드는 다음과 같습니다:
-* `status`
-* `petType`
-* `part`
-* `createdAt`
-* `subPart`
-* `userId`
-* `questions`
-* `metadata`
-* `response`
+
+#### 최상위 필드
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `status` | String | SDK 처리 상태. 일반적으로 `SUCCESS` |
+| `petType` | String | `DOG` 또는 `CAT` |
+| `part` | String | 검사 부위. 예: `EYE`, `SKIN`, `TOOTH` |
+| `createdAt` | Long | UTC 밀리초 기준 분석 생성 시각 |
+| `questions` | Array | 문진 사용 시 문진 응답 |
+| `response` | Object | UI 표시용 결과 요약 |
+
+검사 종류와 SDK 설정에 따라 `userId`, `petId`, `petBirthday`, `petBreedName`, `petGender`, `petAdditionalInfo`, 상세 위치 값 등이 함께 포함될 수 있습니다.
+
+#### `questions[]`
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `text` | String | 문진 질문 텍스트 |
+| `select` | String | 사용자 응답. `Y` 또는 `N` |
+
+#### `metadata`
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `petBirthday` | String | 요청 시 전달한 반려동물 생일 |
+| `petBreedName` | String | 요청 시 전달한 품종명 |
+| `petGender` | String | 요청 시 전달한 성별 |
+| `petAdditionalInfo` | Object | JSON 문자열을 전달한 경우 파싱된 추가 정보 |
 
 #### `response`
-이 응답 블록은 UI 렌더링에 최적화되어 있으며 다음을 포함합니다:
-* `status`
-* `title`
-* `analyzedDate`
-* `description`
-* `symptoms`
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `status` | String | 최종 판정 상태: `NORMAL`, `CAUTION`, `WARNING` |
+| `title` | String | 사용자 표시용 결과 제목 |
+| `analyzedDate` | String | 포맷된 분석 일시 |
+| `description` | Object | 결과 수준의 안내 문구 |
+| `symptoms` | Array | 감지된 증상 상세 |
+
+#### `response.description`
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `title` | String | 안내 제목 |
+| `contents` | Array | 안내 본문 목록 |
 
 #### `response.symptoms[]`
-감지된 각 증상(symptom)은 다음을 포함할 수 있습니다:
-* `code`
-* `name`
-* `heatmapPath`
-* `cropImageUrl`
-* `score`
-* `details`
 
-#### `details[]`
-증상별 세부 정보에는 다음 키들이 사용됩니다:
-* `what_it_is`
-* `related_clinical_conditions`
-* `possible_causes`
-* `what_you_can_do`
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `code` | String | 이상 징후 코드. 예: `hyperemia`, `epiphora` |
+| `name` | String | 현지화된 이상 징후 이름 |
+| `modelName` | String | 해당 증상 결과에 사용된 내부 모델 라벨 |
+| `abnormLevel` | Int | SDK가 계산한 이상 수준 |
+| `score` | Double | 증상에 대한 모델 점수 |
+| `cropImageUrl` | String | 크롭 이미지 HTTPS URL |
+| `heatmapUrl` | String | 히트맵 이미지 HTTPS URL |
+| `isAbnormal` | Boolean | 해당 증상이 이상으로 판단되었는지 여부 |
+| `resultLabel` | String | `normal`, `abnormal` 등의 결과 라벨 |
+| `details` | Array | 증상 설명 블록 |
+
+#### `response.symptoms[].details[]`
+
+| Key | 설명 |
+| --- | --- |
+| `what_it_is` | 감지된 증상에 대한 일반 설명 |
+| `related_clinical_conditions` | 파트너용 관련 질환 및 요인 |
+| `possible_causes` | 보호자용 가능한 원인 |
+| `what_you_can_do` | 홈케어 및 관찰 가이드 |
 
 #### 부위(Position) 코드
-* `EYER`: 오른쪽 눈
-* `EYEL`: 왼쪽 눈
-* `EAR`: 귀
-* `BELLY`: 복부
-* `FOOT`: 발
-* `TCENTER`: 앞니
-* `TRIGHT`: 오른쪽 치아
-* `TLEFT`: 왼쪽 치아
+
+| 코드 | 검사 종류 | 설명 |
+| --- | --- | --- |
+| `EYER` | 눈 | 오른쪽 눈 |
+| `EYEL` | 눈 | 왼쪽 눈 |
+| `EAR` | 피부 | 귀 |
+| `BELLY` | 피부 | 복부 |
+| `FOOT` | 피부 | 발 |
+| `TCENTER` | 치아 | 앞니 |
+| `TRIGHT` | 치아 | 오른쪽 치아 |
+| `TLEFT` | 치아 | 왼쪽 치아 |
+
+### 샘플 결과 JSON
+
+```json
+{
+  "status": "SUCCESS",
+  "petType": "DOG",
+  "part": "EYE",
+  "createdAt": 1781485248231,
+  "questions": [
+    { "text": "동공 크기가 서로 다른가요?", "select": "N" }
+  ],
+  "response": {
+    "status": "WARNING",
+    "title": "가능한 한 빠른 동물병원 진료를 권장해요.",
+    "analyzedDate": "2026. 06. 15 10:00",
+    "description": {
+      "title": "동물병원 내원이 필요한 경우",
+      "contents": [
+        "눈을 찡그리거나 깜빡이는 증상이 호전되지 않는 경우",
+        "충혈, 부기, 분비물이 지속되거나 악화되는 경우"
+      ]
+    },
+    "symptoms": [
+      {
+        "code": "opacity",
+        "modelName": "aaaa1",
+        "abnormLevel": 1,
+        "score": 0.53,
+        "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
+        "name": "혼탁",
+        "isAbnormal": true,
+        "resultLabel": "abnormal",
+        "heatmapUrl": "https://cdn-results.ai4pet.com/.../diagnosis_heatmap",
+        "details": [
+          {
+            "key": "what_it_is",
+            "title": "이 증상은 무엇인가요",
+            "contents": ["눈 표면이 뿌옇거나 흐릿하게 보이는 상태예요."]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## 캐시 정리
-SDK는 진단 과정 중 기기 저장소에 크롭 이미지, 히트맵, 임시 파일을 생성합니다. 결과를 저장하거나 업로드한 후 생성된 캐시를 정리하세요.
+SDK는 진단 과정 중 임시 파일을 생성할 수 있습니다. 결과 이미지 참조는 HTTPS URL로 반환되므로, 호스트 앱이 크롭 이미지나 히트맵 로컬 파일을 직접 복사할 필요는 없습니다.
 
 ```java
 LibraryClass.clearSdkScanCache(context);
 ```
-이 메서드는 생성된 결과 폴더와 이미지 파일들을 삭제합니다. 정리 후에는 반환된 `file://...` 경로가 무효화되므로 필요한 파일을 모두 복사하거나 업로드한 뒤에만 이 메서드를 호출하십시오.
+반환된 결과 JSON 처리를 마친 뒤 이 메서드를 호출하세요.
+
+| 삭제 대상 | 설명 |
+| --- | --- |
+| `ttSdk_*` 폴더 | 스캔별 SDK 임시 작업 폴더 |
+| `*.png` 파일 | 분석 과정에서 생성될 수 있는 임시 이미지 |
+| `dataResult`, `result` 파일 | SDK가 생성한 임시 디버그/결과 파일 |
 
 ## 선택적 Mixpanel 연동
 앱에서 이미 Mixpanel을 사용하고 있다면 SDK 내부 이벤트를 추적기에 연결할 수 있습니다.
@@ -230,6 +327,22 @@ class MyMixpanelTracker(context: Context, token: String) : MixpanelTracker {
 }
 ```
 
+```kotlin
+class AiForPetApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        val tracker = MyMixpanelTracker.getInstance(
+            this,
+            "your_mixpanel_token"
+        )
+        MySDK.setMixpanelTracker(tracker)
+    }
+}
+```
+
+이 연동을 사용할 경우 `AndroidManifest.xml`에 직접 만든 `Application` 클래스를 등록하세요.
+
 ## Proguard
 SDK에는 라이브러리 사용자용 Proguard 규칙이 포함되어 있지만, 릴리즈 빌드에서 카메라 스캔이 충돌하는 경우 아래와 같이 직접 keep 규칙을 추가하세요:
 
@@ -244,14 +357,14 @@ SDK에는 라이브러리 사용자용 Proguard 규칙이 포함되어 있지만
 2. 요청용 `Bundle` 데이터 구성
 3. 알맞은 카메라 액티비티 실행
 4. 분석이 끝난 후 결과 JSON 수신
-5. 결과 저장 또는 업로드
-6. 생성된 미디어 사용 완료 후 `LibraryClass.clearSdkScanCache()` 호출
+5. 필요한 경우 반환된 이미지 URL을 바로 렌더링
+6. 결과 처리 완료 후 `LibraryClass.clearSdkScanCache()` 호출
 
 ## v1.7.x 마이그레이션 참고
 * 진단이 기기 내(on-device)에서 실행됩니다.
-* 결과 이미지 참조가 원격 URL에서 로컬 파일 경로로 변경되었습니다.
+* 결과 이미지 참조는 로컬 파일 경로가 아닌 HTTPS URL로 반환됩니다.
 * 최소 지원 버전(Minimum SDK)이 28로 상향되었습니다.
-* 캐시 정리를 호스트 앱에서 직접 명시적으로 처리해야 합니다.
+* SDK 인증은 필수 `sdkKey` Bundle 값으로 전달합니다.
 
 ## 고객 지원
 품종 목록, 증상 사전 데이터, 기본 가이드 URL, 기타 연동 지원이 필요하시면 TTcare 팀에 문의해 주세요.

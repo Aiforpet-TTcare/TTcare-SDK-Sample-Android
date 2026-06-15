@@ -1,15 +1,15 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns local file paths for generated media, and requires API 28 or later.
+Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns HTTPS URLs for generated result images, and requires API 28 or later.
 
 ## What's new in v2.x
 * Target SDK moved to API 36
 * Minimum SDK moved to API 28 because ONNX Runtime now requires API 28+
 * AI diagnosis no longer depends on a server round-trip
-* Result image URLs changed from remote `https://...` URLs to local `file://...` paths
+* Result image references are returned as HTTPS URLs, so host apps can load them directly
 * Added `LibraryClass.clearSdkScanCache()` for generated media cleanup
 * Supported result screen languages include English, Korean, Japanese, Italian, Swedish, and Thai
-* Added `enablePdfShare` in v2.1.0 to control the PDF share button on the built-in result screen
+* `enablePdfShare` controls the PDF share button on the built-in result screen
 
 ## Prerequisites
 * Android 9.0+ (minSdk 28)
@@ -28,22 +28,22 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.0")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.1")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
 
-## Set up the authentication key
+## Set up the SDK key
 
 > [!IMPORTANT]
-> **Demo App License Key Notice**
-> This sample project does NOT include an actual license key (`sdk` file) in the `assets` folder.
-> To run the sample app properly, you must place your issued license key file in the `app/src/main/assets/sdk` directory.
+> **Demo App SDK Key Notice**
+> This sample project uses the placeholder value `Enter your issued SDK key`.
+> Replace it with the SDK key issued for your project before running the sample app.
 
-TTcare issues an authentication key file as JSON. The file is provided only once, so treat it as a secret and plan for re-issuance if it is lost.
+TTcare issues an SDK key for each partner project. Treat it as a secret and manage it according to your app security policy.
 
 **Security rule**
-Do not store the authentication key as plain text inside the app package. Encrypt it or fetch it securely at runtime, then pass the decrypted JSON string as `ttConf`.
+Do not expose a real production SDK key in public source code. Store or fetch it securely, then pass the issued SDK key string as `sdkKey` when launching the SDK activity.
 
 
 
@@ -77,34 +77,33 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 * Teeth: `ToothCameraActivity`
 
 ### 3. Pass request parameters
-**Required fields:**
-* `userId`
-* `petType` (DOG or CAT)
-* `ttConf`
 
-**Required for skin scans:**
-* `partType` (EAR, BELLY, FOOT)
-
-**Optional fields:**
-* `petId`
-* `petBirthday` (yyyy-MM-dd)
-* `petBreedName`
-* `petGender` (M, F, MC, FC)
-* `petAdditionalInfo`
-* `guideUrl`
-* `isAnalysisEnabled`
-* `isFlashMode`
-* `enablesQuestionnaire`
-* `enableResultView`
-* `enablePdfShare`
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | String | Yes | User identifier from your service |
+| `petType` | String | Yes | `DOG` or `CAT` |
+| `sdkKey` | String | Yes | SDK key issued for your project |
+| `partType` | String | Required for skin scans | `EAR`, `BELLY`, or `FOOT`. Required when launching `SkinCameraActivity` |
+| `petId` | String | No | Pet identifier from your service. Returned in result data when provided |
+| `petBirthday` | String | No | Pet birthday. `yyyy-MM-dd` recommended |
+| `petBreedName` | String | No | Breed name. Use the partner breed list when your service maps breeds |
+| `petGender` | String | No | `M`, `F`, `MC`, or `FC` |
+| `petAdditionalInfo` | String | No | Additional metadata. JSON string recommended |
+| `guideUrl` | String | No | Web guide URL shown inside the SDK camera guide view |
+| `isAnalysisEnabled` | Boolean/String | No | Enables partner analytics wrapper mode when configured |
+| `isFlashMode` | Boolean | No | Starts camera flash enabled. Default: `false` |
+| `enablesQuestionnaire` | Boolean | No | Uses SDK questionnaire flow. Default: `true` |
+| `enableResultView` | Boolean | No | Shows SDK built-in result screen. Default: `true` |
+| `enablePdfShare` | Boolean | No | Shows PDF share button on the built-in result screen. Meaningful when `enableResultView=true` |
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
 Bundle bundle = new Bundle();
+String sdkKey = "Enter your issued SDK key";
 
 bundle.putString("petType", "DOG");
 bundle.putString("userId", "your_user_id");
-bundle.putString("ttConf", decryptedJsonKey);
+bundle.putString("sdkKey", sdkKey);
 bundle.putString("petBirthday", "2020-03-15");
 bundle.putString("petBreedName", "Maltese");
 bundle.putString("petGender", "MC");
@@ -143,70 +142,168 @@ The SDK returns a JSON string with the final diagnosis result through `scanLaunc
 
 When the questionnaire is enabled, the final status reflects both scan output and questionnaire answers.
 
-### Handle local image paths
-In v2.0.x, heatmaps and crops are returned as local `file://...` paths instead of remote URLs. Strip the prefix and load the file from disk.
+| Questionnaire answer | AI scan result | Final status |
+| --- | --- | --- |
+| Symptoms present | Abnormal signs detected | `WARNING` |
+| No symptoms | Abnormal signs detected | `CAUTION` |
+| No symptoms | No abnormal signs detected | `NORMAL` |
+| Symptoms present | No abnormal signs detected | `CAUTION` |
+
+### Display result images
+Heatmaps and crop images are returned as HTTPS URLs. Host apps do not need to read SDK-generated local files; load the returned URL directly with your image loading library.
 
 ```java
-String imageUrl = "file:///data/user/0/.../overlay.png";
+String imageUrl = symptom.optString("heatmapUrl");
 
 Picasso.get()
-    .load(new File(imageUrl.replace("file://", "")))
+    .load(imageUrl)
     .into(imageView);
 ```
 
 ### Result schema overview
-Top-level fields include:
-* `status`
-* `petType`
-* `part`
-* `createdAt`
-* `subPart`
-* `userId`
-* `questions`
-* `metadata`
-* `response`
+
+#### Top-level fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | String | SDK processing status. Usually `SUCCESS` |
+| `petType` | String | `DOG` or `CAT` |
+| `part` | String | Scan part, such as `EYE`, `SKIN`, or `TOOTH` |
+| `createdAt` | Long | Analysis creation time in UTC milliseconds |
+| `questions` | Array | Questionnaire answers when questionnaire is enabled |
+| `response` | Object | UI-ready result summary |
+
+Depending on scan type and SDK configuration, the result may also include host app metadata such as `userId`, `petId`, `petBirthday`, `petBreedName`, `petGender`, `petAdditionalInfo`, or detailed position values.
+
+#### `questions[]`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `text` | String | Questionnaire question text |
+| `select` | String | User answer. `Y` or `N` |
+
+#### `metadata`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `petBirthday` | String | Pet birthday passed in the request |
+| `petBreedName` | String | Breed name passed in the request |
+| `petGender` | String | Pet gender passed in the request |
+| `petAdditionalInfo` | Object | Parsed additional information when a JSON string is provided |
 
 #### `response`
-The response block is optimized for UI rendering and includes:
-* `status`
-* `title`
-* `analyzedDate`
-* `description`
-* `symptoms`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | String | Final result status: `NORMAL`, `CAUTION`, or `WARNING` |
+| `title` | String | User-facing result title |
+| `analyzedDate` | String | Formatted analysis date |
+| `description` | Object | Result-level guidance text |
+| `symptoms` | Array | Detected symptom details |
+
+#### `response.description`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `title` | String | Guidance title |
+| `contents` | Array | Guidance body lines |
 
 #### `response.symptoms[]`
-Each detected symptom can include:
-* `code`
-* `name`
-* `heatmapPath`
-* `cropImageUrl`
-* `score`
-* `details`
 
-#### `details[]`
-Per-symptom details use the following keys:
-* `what_it_is`
-* `related_clinical_conditions`
-* `possible_causes`
-* `what_you_can_do`
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | String | Symptom code, such as `hyperemia` or `epiphora` |
+| `name` | String | Localized symptom name |
+| `modelName` | String | Internal model label used for this symptom result |
+| `abnormLevel` | Int | Abnormality level calculated by the SDK |
+| `score` | Double | Model score for the symptom |
+| `cropImageUrl` | String | HTTPS URL for the crop image |
+| `heatmapUrl` | String | HTTPS URL for the heatmap image |
+| `isAbnormal` | Boolean | Whether the symptom is judged abnormal |
+| `resultLabel` | String | Result label, such as `normal` or `abnormal` |
+| `details` | Array | Symptom explanation blocks |
+
+#### `response.symptoms[].details[]`
+
+| Key | Description |
+| --- | --- |
+| `what_it_is` | General explanation of the detected sign |
+| `related_clinical_conditions` | Partner-facing related clinical conditions and factors |
+| `possible_causes` | Guardian-friendly possible causes |
+| `what_you_can_do` | Home-care guidance and observation tips |
 
 #### Position codes
-* `EYER`: right eye
-* `EYEL`: left eye
-* `EAR`: ear
-* `BELLY`: belly
-* `FOOT`: paw
-* `TCENTER`: front teeth
-* `TRIGHT`: right teeth
-* `TLEFT`: left teeth
+
+| Code | Scan type | Description |
+| --- | --- | --- |
+| `EYER` | Eye | Right eye |
+| `EYEL` | Eye | Left eye |
+| `EAR` | Skin | Ear |
+| `BELLY` | Skin | Belly |
+| `FOOT` | Skin | Paw |
+| `TCENTER` | Teeth | Front teeth |
+| `TRIGHT` | Teeth | Right teeth |
+| `TLEFT` | Teeth | Left teeth |
+
+### Sample result JSON
+
+```json
+{
+  "status": "SUCCESS",
+  "petType": "DOG",
+  "part": "EYE",
+  "createdAt": 1781485248231,
+  "questions": [
+    { "text": "Are the pupil sizes different?", "select": "N" }
+  ],
+  "response": {
+    "status": "WARNING",
+    "title": "A veterinary visit is recommended as soon as possible.",
+    "analyzedDate": "2026. 06. 15 10:00",
+    "description": {
+      "title": "When to visit a veterinary clinic",
+      "contents": [
+        "If squinting or blinking does not improve",
+        "If redness, swelling, or discharge continues or worsens"
+      ]
+    },
+    "symptoms": [
+      {
+        "code": "opacity",
+        "modelName": "aaaa1",
+        "abnormLevel": 1,
+        "score": 0.53,
+        "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
+        "name": "Opacity",
+        "isAbnormal": true,
+        "resultLabel": "abnormal",
+        "heatmapUrl": "https://cdn-results.ai4pet.com/.../diagnosis_heatmap",
+        "details": [
+          {
+            "key": "what_it_is",
+            "title": "What is this sign?",
+            "contents": ["The eye surface appears cloudy or blurred."]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## Cache cleanup
-The SDK creates cropped images, heatmaps, and intermediate files inside app storage during diagnosis. After you save or upload the result, clear the generated cache.
+The SDK may create temporary files during diagnosis. Result image references are returned as HTTPS URLs, so host apps do not need to copy local crop or heatmap files before cleanup.
 
 ```java
 LibraryClass.clearSdkScanCache(context);
 ```
-This removes generated result folders and image files. Call it only after copying or uploading any file you still need, because returned `file://...` paths become invalid after cleanup.
+Call this after your app finishes handling the returned result JSON.
+
+| Deleted target | Description |
+| --- | --- |
+| `ttSdk_*` folders | Per-scan temporary SDK working folders |
+| `*.png` files | Temporary images generated during analysis |
+| `dataResult`, `result` files | Temporary debug/result files generated by the SDK |
 
 ## Optional Mixpanel integration
 If your app already uses Mixpanel, you can wire SDK internal events to your tracker.
@@ -230,6 +327,22 @@ class MyMixpanelTracker(context: Context, token: String) : MixpanelTracker {
 }
 ```
 
+```kotlin
+class AiForPetApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        val tracker = MyMixpanelTracker.getInstance(
+            this,
+            "your_mixpanel_token"
+        )
+        MySDK.setMixpanelTracker(tracker)
+    }
+}
+```
+
+Register your `Application` class in `AndroidManifest.xml` when you use this integration.
+
 ## Proguard
 The SDK ships with consumer Proguard rules, but if camera scanning crashes in release builds, add explicit keep rules:
 
@@ -244,14 +357,14 @@ The SDK ships with consumer Proguard rules, but if camera scanning crashes in re
 2. Build the request `Bundle`
 3. Launch the matching camera activity
 4. Receive result JSON after analysis
-5. Persist or upload the result
-6. Call `LibraryClass.clearSdkScanCache()` after you finish using generated media
+5. Render returned image URLs directly when needed
+6. Call `LibraryClass.clearSdkScanCache()` after you finish handling the result
 
 ## Migration notes from v1.7.x
 * Diagnosis now runs on-device
-* Result image references are local files, not remote URLs
+* Result image references are HTTPS URLs, not local file paths
 * Minimum SDK is now 28
-* Cache cleanup is now an explicit host-app responsibility
+* SDK authentication is passed through the required `sdkKey` Bundle value
 
 ## Support
 For breed lists, symptom dictionaries, default guide URLs, or integration support, contact the TTcare team.
