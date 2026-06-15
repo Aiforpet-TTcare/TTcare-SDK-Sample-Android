@@ -214,7 +214,6 @@ Picasso.get()
 | --- | --- | --- |
 | `code` | String | 異常兆候コード。例: `hyperemia`, `epiphora` |
 | `name` | String | ローカライズされた異常兆候名 |
-| `modelName` | String | この症状結果で使用された内部モデルラベル |
 | `abnormLevel` | Int | SDK が算出した異常レベル |
 | `score` | Double | 症状に対するモデルスコア |
 | `cropImageUrl` | String | クロップ画像の HTTPS URL |
@@ -270,7 +269,6 @@ Picasso.get()
     "symptoms": [
       {
         "code": "opacity",
-        "modelName": "aaaa1",
         "abnormLevel": 1,
         "score": 0.53,
         "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",

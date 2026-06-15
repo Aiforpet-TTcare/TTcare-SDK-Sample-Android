@@ -214,7 +214,6 @@ Depending on scan type and SDK configuration, the result may also include host a
 | --- | --- | --- |
 | `code` | String | Symptom code, such as `hyperemia` or `epiphora` |
 | `name` | String | Localized symptom name |
-| `modelName` | String | Internal model label used for this symptom result |
 | `abnormLevel` | Int | Abnormality level calculated by the SDK |
 | `score` | Double | Model score for the symptom |
 | `cropImageUrl` | String | HTTPS URL for the crop image |
@@ -270,7 +269,6 @@ Depending on scan type and SDK configuration, the result may also include host a
     "symptoms": [
       {
         "code": "opacity",
-        "modelName": "aaaa1",
         "abnormLevel": 1,
         "score": 0.53,
         "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
