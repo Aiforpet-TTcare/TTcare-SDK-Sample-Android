@@ -3,6 +3,7 @@
 本ガイドを利用して、TTcare Scan SDK v2.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成された結果画像は HTTPS URL で返されます。API 28 以上が必要です。
 
 ## v2.x の新機能
+* v2.1.2 には、Android のスキャンフローと内蔵結果画面に関する不具合修正および安定性の向上が含まれています
 * Target SDK が API 36 に移行されました
 * ONNX Runtime が API 28+ を必要とするため、Minimum SDK が API 28 に移行されました
 * AI 診断において、サーバー通信(round-trip)に依存しなくなりました
@@ -28,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.1")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.2")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。
