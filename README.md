@@ -3,7 +3,7 @@
 Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns HTTPS URLs for generated result images, and requires API 28 or later.
 
 ## What's new in v2.x
-* v2.1.2 includes bug fixes and stability improvements for the Android scan flow and built-in result experience
+* v2.1.3 adds `petName` to SDK launch options and aligns the public result JSON with the latest partner-facing response format
 * Target SDK moved to API 36
 * Minimum SDK moved to API 28 because ONNX Runtime now requires API 28+
 * AI diagnosis no longer depends on a server round-trip
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.2")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
@@ -86,10 +86,10 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `sdkKey` | String | Yes | SDK key issued for your project |
 | `partType` | String | Required for skin scans | `EAR`, `BELLY`, or `FOOT`. Required when launching `SkinCameraActivity` |
 | `petId` | String | No | Pet identifier from your service. Returned in result data when provided |
+| `petName` | String | No | Pet name used in the built-in result screen and PDF report text |
 | `petBirthday` | String | No | Pet birthday. `yyyy-MM-dd` recommended |
 | `petBreedName` | String | No | Breed name. Use the partner breed list when your service maps breeds |
 | `petGender` | String | No | `M`, `F`, `MC`, or `FC` |
-| `petAdditionalInfo` | String | No | Additional metadata. JSON string recommended |
 | `guideUrl` | String | No | Web guide URL shown inside the SDK camera guide view |
 | `isAnalysisEnabled` | Boolean/String | No | Enables partner analytics wrapper mode when configured |
 | `isFlashMode` | Boolean | No | Starts camera flash enabled. Default: `false` |
@@ -110,8 +110,8 @@ bundle.putString("petBreedName", "Maltese");
 bundle.putString("petGender", "MC");
 
 bundle.putString("petId", "your_pet_id_123");
+bundle.putString("petName", "Coco");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/en/dog/eye.html");
-bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
@@ -161,6 +161,14 @@ Picasso.get()
     .into(imageView);
 ```
 
+### Server-side payload notes
+If your integration also receives SDK upload payloads on a partner server, use `symptom_images[]` as the source of symptom crop and heatmap image URLs. The payload root no longer includes representative `crop` or `heatmap` fields.
+
+`inferences[]` keeps the public result label and score used by the backend pipeline and can include `pred_values` for model output values. This field is intended for server-side processing and is not included in the app-facing result JSON.
+
+### PDF report sharing
+When `enablePdfShare=true` and `enableResultView=true`, the built-in result screen shows a PDF share button. The PDF report uses localized resources for summary text and can use returned heatmap references such as `heatmapUrl`, `heatmapImageUrl`, or `heatmapPath` when preparing the report.
+
 ### Result schema overview
 
 #### Top-level fields
@@ -173,8 +181,11 @@ Picasso.get()
 | `createdAt` | Long | Analysis creation time in UTC milliseconds |
 | `questions` | Array | Questionnaire answers when questionnaire is enabled |
 | `response` | Object | UI-ready result summary |
+| `userId` | String | User identifier passed in the request |
+| `petId` | String | Pet identifier passed in the request, when provided |
+| `subPart` | String | Detailed position code, such as `EYEL`, `EAR`, or `TCENTER`, when available |
 
-Depending on scan type and SDK configuration, the result may also include host app metadata such as `userId`, `petId`, `petBirthday`, `petBreedName`, `petGender`, `petAdditionalInfo`, or detailed position values.
+The public result JSON no longer includes a `metadata` object. Internal model fields such as `score`, `predValues`, `pred_values`, and `modelName` are not returned to partner apps.
 
 #### `questions[]`
 
@@ -182,15 +193,6 @@ Depending on scan type and SDK configuration, the result may also include host a
 | --- | --- | --- |
 | `text` | String | Questionnaire question text |
 | `select` | String | User answer. `Y` or `N` |
-
-#### `metadata`
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `petBirthday` | String | Pet birthday passed in the request |
-| `petBreedName` | String | Breed name passed in the request |
-| `petGender` | String | Pet gender passed in the request |
-| `petAdditionalInfo` | Object | Parsed additional information when a JSON string is provided |
 
 #### `response`
 
@@ -216,7 +218,6 @@ Depending on scan type and SDK configuration, the result may also include host a
 | `code` | String | Symptom code, such as `hyperemia` or `epiphora` |
 | `name` | String | Localized symptom name |
 | `abnormLevel` | Int | Abnormality level calculated by the SDK |
-| `score` | Double | Model score for the symptom |
 | `cropImageUrl` | String | HTTPS URL for the crop image |
 | `heatmapUrl` | String | HTTPS URL for the heatmap image |
 | `isAbnormal` | Boolean | Whether the symptom is judged abnormal |
@@ -253,6 +254,9 @@ Depending on scan type and SDK configuration, the result may also include host a
   "petType": "DOG",
   "part": "EYE",
   "createdAt": 1781485248231,
+  "userId": "your_user_id",
+  "petId": "your_pet_id_123",
+  "subPart": "EYEL",
   "questions": [
     { "text": "Are the pupil sizes different?", "select": "N" }
   ],
@@ -271,7 +275,6 @@ Depending on scan type and SDK configuration, the result may also include host a
       {
         "code": "opacity",
         "abnormLevel": 1,
-        "score": 0.53,
         "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
         "name": "Opacity",
         "isAbnormal": true,

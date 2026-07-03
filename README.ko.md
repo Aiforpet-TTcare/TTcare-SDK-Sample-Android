@@ -3,7 +3,7 @@
 이 가이드를 참고하여 TTcare Scan SDK v2.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 결과 이미지는 HTTPS URL로 반환합니다. API 28 이상이 필요합니다.
 
 ## v2.x의 새로운 기능
-* v2.1.2에는 Android 스캔 흐름과 내장 결과 화면의 버그 수정 및 안정성 개선이 포함되어 있습니다.
+* v2.1.3에서는 SDK 호출 옵션에 `petName`이 추가되었고, 공개 결과 JSON이 최신 연동사 응답 포맷에 맞게 정리되었습니다.
 * Target SDK가 API 36으로 상향되었습니다.
 * ONNX Runtime이 이제 API 28+를 요구함에 따라 Minimum SDK가 API 28로 상향되었습니다.
 * AI 진단 시 더 이상 서버와의 통신(round-trip)에 의존하지 않습니다.
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.2")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
 }
 ```
 SDK가 CAMERA 및 INTERNET 권한을 선언하고 있으므로 자동으로 프로젝트의 Manifest에 병합됩니다.
@@ -86,10 +86,10 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `sdkKey` | String | 예 | 프로젝트용으로 발급받은 SDK key |
 | `partType` | String | 피부 검사 시 필수 | `EAR`, `BELLY`, `FOOT` 중 하나. `SkinCameraActivity` 실행 시 필수 |
 | `petId` | String | 아니오 | 고객사 서비스의 반려동물 식별자. 전달 시 결과 데이터에 포함됩니다 |
+| `petName` | String | 아니오 | 내장 결과 화면 및 PDF 리포트 문구에 사용할 반려동물 이름 |
 | `petBirthday` | String | 아니오 | 반려동물 생일. `yyyy-MM-dd` 형식 권장 |
 | `petBreedName` | String | 아니오 | 품종명. 서비스에서 품종을 매핑하는 경우 별도 Breed List 기준 사용 권장 |
 | `petGender` | String | 아니오 | `M`, `F`, `MC`, `FC` |
-| `petAdditionalInfo` | String | 아니오 | 추가 메타데이터. JSON 문자열 권장 |
 | `guideUrl` | String | 아니오 | SDK 카메라 가이드 웹뷰에 표시할 URL |
 | `isAnalysisEnabled` | Boolean/String | 아니오 | 설정된 경우 파트너 분석 래퍼 모드 활성화 |
 | `isFlashMode` | Boolean | 아니오 | 카메라 플래시 기본 활성화 여부. 기본값: `false` |
@@ -110,8 +110,8 @@ bundle.putString("petBreedName", "Maltese");
 bundle.putString("petGender", "MC");
 
 bundle.putString("petId", "your_pet_id_123");
+bundle.putString("petName", "Coco");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ko/dog/eye.html");
-bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
@@ -161,6 +161,14 @@ Picasso.get()
     .into(imageView);
 ```
 
+### 서버 전송 payload 참고
+파트너 서버가 SDK 업로드 payload를 함께 수신하는 연동 구조라면, 증상별 crop 및 heatmap 이미지 URL은 `symptom_images[]`를 기준으로 사용하세요. payload 루트에는 더 이상 대표 `crop` 또는 `heatmap` 필드가 포함되지 않습니다.
+
+`inferences[]`에는 서버 처리에 필요한 결과 라벨과 점수가 유지되며, 모델 출력값으로 `pred_values`가 포함될 수 있습니다. 이 필드는 서버 처리용이며 앱으로 반환되는 공개 결과 JSON에는 포함되지 않습니다.
+
+### PDF 리포트 공유
+`enablePdfShare=true`이고 `enableResultView=true`이면 내장 결과 화면에 PDF 공유 버튼이 표시됩니다. PDF 리포트는 언어별 리소스 기반의 요약 문구를 사용하며, 리포트 생성 시 `heatmapUrl`, `heatmapImageUrl`, `heatmapPath` 같은 히트맵 참조 값을 사용할 수 있습니다.
+
 ### 결과 스키마 개요
 
 #### 최상위 필드
@@ -173,8 +181,11 @@ Picasso.get()
 | `createdAt` | Long | UTC 밀리초 기준 분석 생성 시각 |
 | `questions` | Array | 문진 사용 시 문진 응답 |
 | `response` | Object | UI 표시용 결과 요약 |
+| `userId` | String | 요청 시 전달한 사용자 식별자 |
+| `petId` | String | 요청 시 전달한 반려동물 식별자 |
+| `subPart` | String | 가능한 경우 `EYEL`, `EAR`, `TCENTER` 같은 상세 위치 코드 |
 
-검사 종류와 SDK 설정에 따라 `userId`, `petId`, `petBirthday`, `petBreedName`, `petGender`, `petAdditionalInfo`, 상세 위치 값 등이 함께 포함될 수 있습니다.
+공개 결과 JSON에는 더 이상 `metadata` 객체가 포함되지 않습니다. `score`, `predValues`, `pred_values`, `modelName` 같은 내부 모델 필드는 연동사 앱으로 반환되지 않습니다.
 
 #### `questions[]`
 
@@ -182,15 +193,6 @@ Picasso.get()
 | --- | --- | --- |
 | `text` | String | 문진 질문 텍스트 |
 | `select` | String | 사용자 응답. `Y` 또는 `N` |
-
-#### `metadata`
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `petBirthday` | String | 요청 시 전달한 반려동물 생일 |
-| `petBreedName` | String | 요청 시 전달한 품종명 |
-| `petGender` | String | 요청 시 전달한 성별 |
-| `petAdditionalInfo` | Object | JSON 문자열을 전달한 경우 파싱된 추가 정보 |
 
 #### `response`
 
@@ -216,7 +218,6 @@ Picasso.get()
 | `code` | String | 이상 징후 코드. 예: `hyperemia`, `epiphora` |
 | `name` | String | 현지화된 이상 징후 이름 |
 | `abnormLevel` | Int | SDK가 계산한 이상 수준 |
-| `score` | Double | 증상에 대한 모델 점수 |
 | `cropImageUrl` | String | 크롭 이미지 HTTPS URL |
 | `heatmapUrl` | String | 히트맵 이미지 HTTPS URL |
 | `isAbnormal` | Boolean | 해당 증상이 이상으로 판단되었는지 여부 |
@@ -253,6 +254,9 @@ Picasso.get()
   "petType": "DOG",
   "part": "EYE",
   "createdAt": 1781485248231,
+  "userId": "your_user_id",
+  "petId": "your_pet_id_123",
+  "subPart": "EYEL",
   "questions": [
     { "text": "동공 크기가 서로 다른가요?", "select": "N" }
   ],
@@ -271,7 +275,6 @@ Picasso.get()
       {
         "code": "opacity",
         "abnormLevel": 1,
-        "score": 0.53,
         "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
         "name": "혼탁",
         "isAbnormal": true,

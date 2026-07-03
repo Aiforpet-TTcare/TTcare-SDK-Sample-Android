@@ -3,7 +3,7 @@
 本ガイドを利用して、TTcare Scan SDK v2.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成された結果画像は HTTPS URL で返されます。API 28 以上が必要です。
 
 ## v2.x の新機能
-* v2.1.2 には、Android のスキャンフローと内蔵結果画面に関する不具合修正および安定性の向上が含まれています
+* v2.1.3 では SDK 起動オプションに `petName` が追加され、公開結果 JSON が最新のパートナー向けレスポンス形式に整理されました
 * Target SDK が API 36 に移行されました
 * ONNX Runtime が API 28+ を必要とするため、Minimum SDK が API 28 に移行されました
 * AI 診断において、サーバー通信(round-trip)に依存しなくなりました
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.2")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。
@@ -86,10 +86,10 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `sdkKey` | String | はい | プロジェクト用に発行された SDK key |
 | `partType` | String | 皮膚スキャン時は必須 | `EAR`, `BELLY`, `FOOT` のいずれか。`SkinCameraActivity` 起動時に必須 |
 | `petId` | String | いいえ | パートナーサービスのペット識別子。指定すると結果データに含まれます |
+| `petName` | String | いいえ | 内蔵結果画面および PDF レポート文言に使用するペット名 |
 | `petBirthday` | String | いいえ | ペットの誕生日。`yyyy-MM-dd` 推奨 |
 | `petBreedName` | String | いいえ | 品種名。サービス側で品種をマッピングする場合はパートナー用 Breed List の利用を推奨 |
 | `petGender` | String | いいえ | `M`, `F`, `MC`, `FC` |
-| `petAdditionalInfo` | String | いいえ | 追加メタデータ。JSON 文字列推奨 |
 | `guideUrl` | String | いいえ | SDK カメラガイド WebView に表示する URL |
 | `isAnalysisEnabled` | Boolean/String | いいえ | 設定済みの場合、パートナー分析ラッパーモードを有効化 |
 | `isFlashMode` | Boolean | いいえ | カメラフラッシュを初期状態で有効にするか。デフォルト: `false` |
@@ -110,8 +110,8 @@ bundle.putString("petBreedName", "Maltese");
 bundle.putString("petGender", "MC");
 
 bundle.putString("petId", "your_pet_id_123");
+bundle.putString("petName", "Coco");
 bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ja/dog/eye.html");
-bundle.putString("petAdditionalInfo", "{\"info\":\"additional info\"}");
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
@@ -161,6 +161,14 @@ Picasso.get()
     .into(imageView);
 ```
 
+### サーバー送信 payload の参考
+パートナーサーバーが SDK アップロード payload も受け取る連携構成の場合、症状ごとの crop および heatmap 画像 URL は `symptom_images[]` を基準に使用してください。payload ルートには代表 `crop` または `heatmap` フィールドは含まれません。
+
+`inferences[]` にはサーバー処理に必要な結果ラベルとスコアが維持され、モデル出力値として `pred_values` が含まれる場合があります。このフィールドはサーバー処理用であり、アプリ向けの公開結果 JSON には含まれません。
+
+### PDF レポート共有
+`enablePdfShare=true` かつ `enableResultView=true` の場合、内蔵結果画面に PDF 共有ボタンが表示されます。PDF レポートは言語別リソースに基づく要約文を使用し、レポート生成時に `heatmapUrl`, `heatmapImageUrl`, `heatmapPath` などの heatmap 参照値を利用できます。
+
 ### 結果スキーマの概要
 
 #### トップレベルフィールド
@@ -173,8 +181,11 @@ Picasso.get()
 | `createdAt` | Long | UTC ミリ秒の分析生成時刻 |
 | `questions` | Array | 問診使用時の回答 |
 | `response` | Object | UI 表示用の結果サマリー |
+| `userId` | String | リクエストで渡したユーザー識別子 |
+| `petId` | String | リクエストで渡したペット識別子 |
+| `subPart` | String | 利用可能な場合の `EYEL`, `EAR`, `TCENTER` などの詳細位置コード |
 
-スキャン種別や SDK 設定によって、`userId`, `petId`, `petBirthday`, `petBreedName`, `petGender`, `petAdditionalInfo`、詳細位置などが追加で含まれる場合があります。
+公開結果 JSON には `metadata` オブジェクトは含まれません。`score`, `predValues`, `pred_values`, `modelName` などの内部モデルフィールドはパートナーアプリには返されません。
 
 #### `questions[]`
 
@@ -182,15 +193,6 @@ Picasso.get()
 | --- | --- | --- |
 | `text` | String | 問診質問テキスト |
 | `select` | String | ユーザー回答。`Y` または `N` |
-
-#### `metadata`
-
-| フィールド | 型 | 説明 |
-| --- | --- | --- |
-| `petBirthday` | String | リクエストで渡したペットの誕生日 |
-| `petBreedName` | String | リクエストで渡した品種名 |
-| `petGender` | String | リクエストで渡した性別 |
-| `petAdditionalInfo` | Object | JSON 文字列を渡した場合にパースされた追加情報 |
 
 #### `response`
 
@@ -216,7 +218,6 @@ Picasso.get()
 | `code` | String | 異常兆候コード。例: `hyperemia`, `epiphora` |
 | `name` | String | ローカライズされた異常兆候名 |
 | `abnormLevel` | Int | SDK が算出した異常レベル |
-| `score` | Double | 症状に対するモデルスコア |
 | `cropImageUrl` | String | クロップ画像の HTTPS URL |
 | `heatmapUrl` | String | ヒートマップ画像の HTTPS URL |
 | `isAbnormal` | Boolean | この症状が異常と判定されたか |
@@ -253,6 +254,9 @@ Picasso.get()
   "petType": "DOG",
   "part": "EYE",
   "createdAt": 1781485248231,
+  "userId": "your_user_id",
+  "petId": "your_pet_id_123",
+  "subPart": "EYEL",
   "questions": [
     { "text": "瞳孔の大きさが左右で違いますか？", "select": "N" }
   ],
@@ -271,7 +275,6 @@ Picasso.get()
       {
         "code": "opacity",
         "abnormLevel": 1,
-        "score": 0.53,
         "cropImageUrl": "https://cdn-results.ai4pet.com/.../diagnosis_crop",
         "name": "混濁",
         "isAbnormal": true,

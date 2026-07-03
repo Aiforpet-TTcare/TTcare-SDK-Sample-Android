@@ -22,7 +22,6 @@ import com.aiforpet.pet.check.SkinCameraActivity
 import com.aiforpet.pet.check.ToothCameraActivity
 import com.google.android.material.card.MaterialCardView
 
-import org.json.JSONException
 import org.json.JSONObject
 
 import java.util.Locale
@@ -126,20 +125,13 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString()) // Optional
 
                 putString("guideUrl", guideBase + "eye.html")
                 putString("sdkKey", sdkKey) // Required
@@ -159,20 +151,13 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("partType", "EAR") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
@@ -192,20 +177,13 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("partType", "BELLY") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
@@ -225,17 +203,10 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("partType", "FOOT") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
@@ -258,20 +229,13 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "tooth.html")
                 putString("sdkKey", sdkKey) // Required
             }
@@ -290,20 +254,13 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "CAT") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
                 putString("guideUrl", guideBase + "eye.html")
                 putString("sdkKey", sdkKey) // Required
             }
@@ -326,17 +283,10 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 putString("petId", "petId") // Optional
+                putString("petName", "TTcare") // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
-
-                val petAdditionalInfo = JSONObject()
-                try {
-                    petAdditionalInfo.put("innerData", "innerData")
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                }
-                putString("petAdditionalInfo", petAdditionalInfo.toString())
 
                 putString("guideUrl", guideBase + "tooth.html")
                 putString("sdkKey", sdkKey) // Required
