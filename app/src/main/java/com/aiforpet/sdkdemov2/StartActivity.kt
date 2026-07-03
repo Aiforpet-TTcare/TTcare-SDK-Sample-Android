@@ -48,6 +48,7 @@ class StartActivity : AppCompatActivity() {
     private var selectPart: String = ""
     private var petType: String = ""
     private val sdkKey = "Enter your issued SDK key"
+    private val demoPetName = "Coco"
 
     private val scanLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -125,7 +126,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
@@ -151,7 +152,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
@@ -177,7 +178,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
@@ -203,7 +204,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
@@ -229,7 +230,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "DOG") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
@@ -254,7 +255,7 @@ class StartActivity : AppCompatActivity() {
                 putString("petType", "CAT") // Required
                 putString("userId", "userId") // Required
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
@@ -283,7 +284,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
 
                 putString("petId", "petId") // Optional
-                putString("petName", "TTcare") // Optional
+                putString("petName", demoPetName) // Optional
                 putString("petBirthday", "2025-01-01") // Optional
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
