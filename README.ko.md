@@ -1,8 +1,9 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-이 가이드를 참고하여 TTcare Scan SDK v2.x를 안드로이드 앱에 연동할 수 있습니다. 이번 릴리즈는 모든 분석을 기기(On-device)에서 수행하며, 생성된 결과 이미지는 HTTPS URL로 반환합니다. API 28 이상이 필요합니다.
+이 가이드를 참고하여 TTcare Scan SDK v2.2.3을 안드로이드 앱에 연동할 수 있습니다. 이 릴리즈는 온디바이스 분석과 TTAPI 서버 분석을 지원하며, 생성된 결과 이미지는 HTTPS URL로 반환합니다. API 28 이상이 필요합니다.
 
 ## v2.x의 새로운 기능
+* v2.2.3에서 눈·피부·치아 사진을 최대 4장 처리하는 선택형 TTAPI 멀티 촬영 모드를 추가했습니다.
 * v2.1.3에서는 SDK 호출 옵션에 `petName`이 추가되었고, 공개 결과 JSON이 최신 연동사 응답 포맷에 맞게 정리되었습니다.
 * Target SDK가 API 36으로 상향되었습니다.
 * ONNX Runtime이 이제 API 28+를 요구함에 따라 Minimum SDK가 API 28로 상향되었습니다.
@@ -29,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.2.3")
 }
 ```
 SDK가 CAMERA 및 INTERNET 권한을 선언하고 있으므로 자동으로 프로젝트의 Manifest에 병합됩니다.
@@ -96,6 +97,7 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `enablesQuestionnaire` | Boolean | 아니오 | SDK 문진 사용 여부. 기본값: `true` |
 | `enableResultView` | Boolean | 아니오 | SDK 내장 결과 화면 표시 여부. 기본값: `true` |
 | `enablePdfShare` | Boolean | 아니오 | 내장 결과 화면의 PDF 공유 버튼 표시 여부. `enableResultView=true`일 때 의미가 있습니다 |
+| `enableMultiMode` | Boolean | 아니오 | 프로젝트가 TTAPI 분석 모드일 때만 최대 4장 촬영을 활성화합니다. 기본값: `false` |
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -115,6 +117,7 @@ bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ko
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
+bundle.putBoolean("enableMultiMode", false); // 선택. TTAPI 멀티 촬영에서만 true
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -133,8 +136,14 @@ intent.putExtras(bundle);
 scanLauncher.launch(intent);
 ```
 
+## 선택형 TTAPI 멀티 촬영
+
+`enableMultiMode`는 프로젝트가 `analysis_mode=ttapi`로 설정된 경우에만 사용할 수 있습니다. `true`로 전달하면 눈·피부·치아 사진을 최대 4장 수집해 분석합니다. 옵션을 전달하지 않거나 `false`이면 기존 단건 촬영 흐름을 유지하며, 온디바이스와 하이브리드 분석도 단건 방식으로 동작합니다.
+
+`result` Intent extra의 타입은 계속 JSON String입니다. 멀티 촬영에서는 한 장만 제출해도 문자열의 최상위 구조가 촬영 순서의 JSON 배열이며, 각 항목은 사진별 원본 결과입니다. 호출 앱은 각 항목의 상태를 개별 확인해야 합니다. 단건 모드는 기존처럼 JSON 객체 하나를 반환합니다.
+
 ## 결과 파악하기
-SDK는 `scanLauncher`를 통해 최종 진단 결과가 포함된 JSON 문자열을 반환합니다.
+SDK는 `scanLauncher`를 통해 최종 진단 결과가 포함된 JSON 문자열을 반환합니다. 단건 모드는 객체로, TTAPI 멀티 촬영은 배열로 파싱하세요.
 
 ### 결과 상태(status)
 * `NORMAL`: 이상 징후 없음

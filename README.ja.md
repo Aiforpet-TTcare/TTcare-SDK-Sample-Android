@@ -1,8 +1,9 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-本ガイドを利用して、TTcare Scan SDK v2.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成された結果画像は HTTPS URL で返されます。API 28 以上が必要です。
+本ガイドを利用して、TTcare Scan SDK v2.2.3 を Android アプリに統合してください。このリリースはオンデバイス解析と TTAPI サーバー解析に対応し、生成された結果画像は HTTPS URL で返されます。API 28 以上が必要です。
 
 ## v2.x の新機能
+* v2.2.3 では、目・皮膚・歯の写真を最大4枚処理する任意の TTAPI マルチ撮影モードを追加しました
 * v2.1.3 では SDK 起動オプションに `petName` が追加され、公開結果 JSON が最新のパートナー向けレスポンス形式に整理されました
 * Target SDK が API 36 に移行されました
 * ONNX Runtime が API 28+ を必要とするため、Minimum SDK が API 28 に移行されました
@@ -29,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.2.3")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。
@@ -96,6 +97,7 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `enablesQuestionnaire` | Boolean | いいえ | SDK 問診フローを使用するか。デフォルト: `true` |
 | `enableResultView` | Boolean | いいえ | SDK 内蔵結果画面を表示するか。デフォルト: `true` |
 | `enablePdfShare` | Boolean | いいえ | 内蔵結果画面に PDF 共有ボタンを表示するか。`enableResultView=true` の場合に意味があります |
+| `enableMultiMode` | Boolean | いいえ | プロジェクトが TTAPI 解析モードの場合のみ、最大4枚の撮影を有効にします。デフォルト: `false` |
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -115,6 +117,7 @@ bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ja
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
+bundle.putBoolean("enableMultiMode", false); // 任意。TTAPI マルチ撮影の場合のみ true
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -133,8 +136,14 @@ intent.putExtras(bundle);
 scanLauncher.launch(intent);
 ```
 
+## 任意の TTAPI マルチ撮影
+
+`enableMultiMode` は、プロジェクトが `analysis_mode=ttapi` に設定されている場合のみ使用できます。`true` を渡すと、目・皮膚・歯の写真を最大4枚収集して解析します。未指定または `false` の場合は従来の単一撮影フローを維持し、オンデバイスおよびハイブリッド解析も単一撮影で動作します。
+
+`result` Intent extra の型は引き続き JSON String です。マルチ撮影では1枚だけ送信した場合でも、文字列の最上位構造は撮影順の JSON 配列です。各要素は写真ごとの元の結果なので、呼び出し側アプリで各状態を個別に確認してください。単一撮影は従来どおり1つの JSON オブジェクトを返します。
+
 ## 結果の理解
-SDK は `scanLauncher` を通じて、最終的な診断結果を含む JSON 文字列を返します。
+SDK は `scanLauncher` を通じて、最終的な診断結果を含む JSON 文字列を返します。単一撮影はオブジェクト、TTAPI マルチ撮影は配列として解析してください。
 
 ### 結果ステータス(status)
 * `NORMAL`: 異常は検出されませんでした

@@ -1,8 +1,9 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns HTTPS URLs for generated result images, and requires API 28 or later.
+Use this guide to integrate TTcare Scan SDK v2.2.3 into your Android app. This release line supports on-device analysis and TTAPI server analysis, returns HTTPS URLs for generated result images, and requires API 28 or later.
 
 ## What's new in v2.x
+* v2.2.3 adds optional TTAPI multi-photo mode for up to four eye, skin, or teeth photos
 * v2.1.3 adds `petName` to SDK launch options and aligns the public result JSON with the latest partner-facing response format
 * Target SDK moved to API 36
 * Minimum SDK moved to API 28 because ONNX Runtime now requires API 28+
@@ -29,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.2.3")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
@@ -96,6 +97,7 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `enablesQuestionnaire` | Boolean | No | Uses SDK questionnaire flow. Default: `true` |
 | `enableResultView` | Boolean | No | Shows SDK built-in result screen. Default: `true` |
 | `enablePdfShare` | Boolean | No | Shows PDF share button on the built-in result screen. Meaningful when `enableResultView=true` |
+| `enableMultiMode` | Boolean | No | Enables up to four photos only when the project uses TTAPI analysis mode. Default: `false` |
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -115,6 +117,7 @@ bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/en
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
+bundle.putBoolean("enableMultiMode", false); // Optional; set true only for TTAPI multi-photo mode
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -133,8 +136,14 @@ intent.putExtras(bundle);
 scanLauncher.launch(intent);
 ```
 
+## Optional TTAPI multi-photo mode
+
+`enableMultiMode` is available only when the project is configured for `analysis_mode=ttapi`. Set it to `true` to collect and analyze up to four eye, skin, or teeth photos. If the option is omitted or `false`, the SDK keeps the existing single-photo flow. On-device and hybrid analysis also keep the single-photo behavior.
+
+The `result` Intent extra remains a JSON String. In multi-photo mode, the string contains a top-level JSON array in capture order, even when only one photo is submitted. Each item is the original per-photo result, so inspect each item's status independently. Single-photo mode continues to return one JSON object.
+
 ## Understand the result
-The SDK returns a JSON string with the final diagnosis result through `scanLauncher`.
+The SDK returns a JSON string with the final diagnosis result through `scanLauncher`. Parse it as an object for single-photo mode and as an array for TTAPI multi-photo mode.
 
 ### Result status
 * `NORMAL`: no anomalies detected

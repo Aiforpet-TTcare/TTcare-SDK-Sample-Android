@@ -22,7 +22,9 @@ import com.aiforpet.pet.check.SkinCameraActivity
 import com.aiforpet.pet.check.ToothCameraActivity
 import com.google.android.material.card.MaterialCardView
 
+import org.json.JSONArray
 import org.json.JSONObject
+import org.json.JSONTokener
 
 import java.util.Locale
 
@@ -31,6 +33,7 @@ class StartActivity : AppCompatActivity() {
     private lateinit var isenablesQuestionnaire: CheckBox
     private lateinit var isEnableResult: CheckBox
     private lateinit var isEnablePdfShare: CheckBox
+    private lateinit var isEnableMultiMode: CheckBox
 
     private lateinit var mainView: LinearLayout
 
@@ -60,9 +63,11 @@ class StartActivity : AppCompatActivity() {
 
             if (resultData != null) {
                 try {
-                    // Format JSON prettily and output to TextView
-                    val json = JSONObject(resultData)
-                    resultTxt.text = json.toString(4)
+                    resultTxt.text = when (val json = JSONTokener(resultData).nextValue()) {
+                        is JSONObject -> json.toString(4)
+                        is JSONArray -> json.toString(4)
+                        else -> resultData
+                    }
                 } catch (e: Exception) {
                     resultTxt.text = resultData
                 }
@@ -96,6 +101,7 @@ class StartActivity : AppCompatActivity() {
         isenablesQuestionnaire = findViewById(R.id.isenablesQuestionnaire)
         isEnableResult = findViewById(R.id.isEnableResult)
         isEnablePdfShare = findViewById(R.id.isEnablePdfShare)
+        isEnableMultiMode = findViewById(R.id.isEnableMultiMode)
 
         mainView = findViewById(R.id.mainView)
         resultView = findViewById(R.id.resultView)
@@ -133,6 +139,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
 
                 putString("guideUrl", guideBase + "eye.html")
                 putString("sdkKey", sdkKey) // Required
@@ -159,6 +166,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
                 putString("partType", "EAR") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
@@ -185,6 +193,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
                 putString("partType", "BELLY") // Required for skin scans
                 putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
@@ -213,6 +222,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -237,6 +247,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
                 putString("guideUrl", guideBase + "tooth.html")
                 putString("sdkKey", sdkKey) // Required
             }
@@ -262,6 +273,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
                 putString("guideUrl", guideBase + "eye.html")
                 putString("sdkKey", sdkKey) // Required
             }
@@ -282,6 +294,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional, TTAPI only
 
                 putString("petId", "petId") // Optional
                 putString("petName", demoPetName) // Optional
