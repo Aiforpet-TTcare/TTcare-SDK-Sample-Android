@@ -1,24 +1,26 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-本ガイドを利用して、TTcare Scan SDK v2.x を Android アプリに統合してください。このリリースでは、分析を完全にデバイス上(On-device)で実行し、生成された結果画像は HTTPS URL で返されます。API 28 以上が必要です。
+このサンプルは TTcare Scan SDK 3.2.0 の Android 連携を示します。SDK は端末で画像を準備し、サーバーの解析結果を返します。SDK 自体は API 23 以上に対応し、現在のサンプルアプリ設定は API 28 以上です。
 
-## v2.x の新機能
-* v2.1.3 では SDK 起動オプションに `petName` が追加され、公開結果 JSON が最新のパートナー向けレスポンス形式に整理されました
-* Target SDK が API 36 に移行されました
-* ONNX Runtime が API 28+ を必要とするため、Minimum SDK が API 28 に移行されました
-* AI 診断において、サーバー通信(round-trip)に依存しなくなりました
+## 3.2.0 連携の要点
+* 認証と準備の間もカメラプレビューを先に表示し、準備完了前の撮影は無効にします
+* SDK キーに不正な空白や制御文字がある場合、ホストアプリのクラッシュではなく SDK 画面をキャンセルします。発行されたキーをそのまま渡してください
+* 既定の撮影ガイドは `https://guide.ai4pet.com/sdk/guide/{locale}/{pet}/{part}` を使用し、指定した `guideUrl` が優先されます
+* 任意の `enableMultiMode` で最大4枚をサーバー解析し、1枚だけ送信した場合も JSON 配列を返します
 * 結果画像の参照は HTTPS URL として返されるため、ホストアプリで直接ロードできます
-* 生成されたメディアのキャッシュをクリアするための `LibraryClass.clearSdkScanCache()` が追加されました
-* 結果画面の対応言語は英語、韓国語、日本語、イタリア語、スウェーデン語、タイ語です
+* `LibraryClass.clearSdkScanCache()` で生成メディアのキャッシュを削除できます
+* 既定の撮影ガイドは韓国語、英語、日本語、ブラジルポルトガル語、トルコ語、タイ語に対応し、未対応言語は英語になります
 * `enablePdfShare` オプションで内蔵結果画面の PDF 共有ボタンを制御できます
 
 ## 動作要件
-* Android 9.0+ (minSdk 28)
-* Target SDK 36 推奨
-* Java 17 推奨
+* SDK の最小要件: Android 6.0 以上(API 23)。現在のサンプルアプリは `minSdk 28` です
+* SDK の Java 17 バイトコードに対応するアプリのビルド環境を確認してください
+* AGP 9 のアプリではルートの `gradle.properties` に `android.uniquePackageNames=false` が必要です。AGP 8.2.2 はサポート対象外です
 * サポートされている ABI: `armeabi-v7a`, `arm64-v8a`
 
-SDK には CameraX、OkHttp、LiteRT、ONNX Runtime などのランタイム依存関係が同梱されています。追加のサードパーティ依存関係の設定は必要ありません。
+このサンプルは Gradle 9.1、AGP 8.13.2、Kotlin 2.3.20、JDK 17 でビルドを確認しました。これはサンプルの検証環境であり、すべてのホストアプリの最小要件ではありません。
+
+サーバー解析が許可されたプロジェクトとインターネット接続が必要です。カメラと画像準備の依存関係は SDK が管理します。
 
 ## Maven Central からのインストール
 プロジェクトのリポジトリに Maven Central を追加し、アプリモジュールに SDK を追加します。
@@ -29,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:3.2.0")
 }
 ```
 SDK はすでに CAMERA および INTERNET 権限を宣言しているため、マニフェストに自動的にマージされます。
@@ -96,6 +98,9 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `enablesQuestionnaire` | Boolean | いいえ | SDK 問診フローを使用するか。デフォルト: `true` |
 | `enableResultView` | Boolean | いいえ | SDK 内蔵結果画面を表示するか。デフォルト: `true` |
 | `enablePdfShare` | Boolean | いいえ | 内蔵結果画面に PDF 共有ボタンを表示するか。`enableResultView=true` の場合に意味があります |
+| `enableMultiMode` | Boolean | いいえ | 最大4枚を収集し JSON 配列を返します。既定値: `false` |
+
+`guideUrl` を渡さない場合、SDK 3.2.0 が言語と部位に応じた既定のガイドを選択します。このサンプルでは既定のガイドを使用します。
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -111,10 +116,10 @@ bundle.putString("petGender", "MC");
 
 bundle.putString("petId", "your_pet_id_123");
 bundle.putString("petName", "Coco");
-bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/ja/dog/eye.html");
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
+bundle.putBoolean("enableMultiMode", false);
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -134,21 +139,14 @@ scanLauncher.launch(intent);
 ```
 
 ## 結果の理解
-SDK は `scanLauncher` を通じて、最終的な診断結果を含む JSON 文字列を返します。
+SDK は `scanLauncher` を通じて、サーバーの最終結果を JSON 文字列で返します。単一撮影は JSON オブジェクト、`enableMultiMode=true` の場合は1枚だけでも撮影順の JSON 配列です。各項目の状態を個別に確認してください。
 
 ### 結果ステータス(status)
 * `NORMAL`: 異常は検出されませんでした
 * `CAUTION`: 軽度の異常が検出されました、注意深く観察してください
 * `WARNING`: 複数の、または強い異常が検出されました、経過観察を推奨します
 
-問診(Questionnaire)が有効な場合、最終ステータスはスキャン結果と問診の回答の両方を反映します。
-
-| 問診回答 | AI スキャン結果 | 最終ステータス |
-| --- | --- | --- |
-| 症状あり | 異常兆候あり | `WARNING` |
-| 症状なし | 異常兆候あり | `CAUTION` |
-| 症状なし | 異常兆候なし | `NORMAL` |
-| 症状あり | 異常兆候なし | `CAUTION` |
+最終ステータスはサーバーの応答に従います。問診回答が含まれる場合も、ホストアプリでステータスを再計算したり上書きしたりしないでください。
 
 ### 結果画像の表示
 ヒートマップとクロップ画像は HTTPS URL として返されます。ホストアプリは SDK が生成したローカルファイルを直接読む必要はなく、返された URL を画像読み込みライブラリでそのままロードできます。
@@ -346,13 +344,7 @@ class AiForPetApplication : Application() {
 この連携を使用する場合は、`AndroidManifest.xml` に作成した `Application` クラスを登録してください。
 
 ## Proguard
-SDK には利用者向けの Proguard ルールが付属していますが、リリースビルドでカメラスキャンがクラッシュする場合は、以下のように明示的に keep ルールを追加してください:
-
-```proguard
--keep class com.aiforpet.pet.** { *; }
--keep class com.microsoft.onnxruntime.** { *; }
--keep class com.google.ai.edge.litert.** { *; }
-```
+SDK には利用者向けの Proguard ルールが含まれています。リリースビルドを検証し、そのビルドだけで問題が発生した場合は TTcare チームへお問い合わせください。
 
 ## 統合フローの要約
 1. `scanLauncher` の登録
@@ -362,11 +354,12 @@ SDK には利用者向けの Proguard ルールが付属していますが、リ
 5. 必要に応じて返された画像 URL を直接レンダリング
 6. 結果処理完了後、`LibraryClass.clearSdkScanCache()` を呼び出す
 
-## v1.7.x からの移行に関する注意点
-* 診断がデバイス上(on-device)で実行されるようになりました
+## 以前の Android SDK 版からの移行
+* 画像の準備は端末で行い、最終解析にはサーバー接続と適切な SDK キーが必要です
 * 結果画像の参照はローカルファイルパスではなく HTTPS URL として返されます
-* Minimum SDK が 28 になりました
+* SDK の最小 API は 23 で、サンプルアプリ設定は引き続き `minSdk 28` です
 * SDK 認証は必須の `sdkKey` Bundle 値で渡します
+* `enableMultiMode=true` の場合は JSON 配列を処理してください。Bundle フィールドと公開結果 JSON キーは 3.1.0 と同じです
 
 ## サポート
 品種リスト、症状辞書、デフォルトのガイド URL、または統合に関するサポートについては、TTcare チームにお問い合わせください。

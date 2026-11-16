@@ -1,24 +1,26 @@
 🌐 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md)
 
-Use this guide to integrate TTcare Scan SDK v2.x into your Android app. This release line moves inference fully on-device, returns HTTPS URLs for generated result images, and requires API 28 or later.
+Use this sample to integrate TTcare Scan SDK 3.2.0 into an Android app. The SDK prepares images on the device and returns the server's analysis result. The SDK supports API 23+, while this sample app currently targets API 28+.
 
-## What's new in v2.x
-* v2.1.3 adds `petName` to SDK launch options and aligns the public result JSON with the latest partner-facing response format
-* Target SDK moved to API 36
-* Minimum SDK moved to API 28 because ONNX Runtime now requires API 28+
-* AI diagnosis no longer depends on a server round-trip
+## 3.2.0 integration highlights
+* Camera preview appears while the SDK finishes preparing; capture remains disabled until it is ready
+* Invalid SDK keys cancel the SDK activity instead of crashing the host app; pass the issued key unchanged
+* The default camera guide uses `https://guide.ai4pet.com/sdk/guide/{locale}/{pet}/{part}`; a supplied `guideUrl` takes priority
+* Optional `enableMultiMode` collects up to four photos in server-analysis mode and returns a JSON array, even when only one photo is submitted
 * Result image references are returned as HTTPS URLs, so host apps can load them directly
-* Added `LibraryClass.clearSdkScanCache()` for generated media cleanup
-* Supported result screen languages include English, Korean, Japanese, Italian, Swedish, and Thai
+* `LibraryClass.clearSdkScanCache()` can clean up generated media
+* Supported guide languages are Korean, English, Japanese, Portuguese (Brazil), Turkish, and Thai; unsupported locales fall back to English
 * `enablePdfShare` controls the PDF share button on the built-in result screen
 
 ## Prerequisites
-* Android 9.0+ (minSdk 28)
-* Target SDK 36 recommended
-* Java 17 recommended
+* SDK minimum: Android 6.0+ (API 23); this sample app currently has `minSdk 28`
+* Java 17 bytecode support; verify your host app build toolchain with the SDK
+* AGP 9 host apps must set `android.uniquePackageNames=false` in the root `gradle.properties`; AGP 8.2.2 is not supported
 * Supported ABIs: `armeabi-v7a`, `arm64-v8a`
 
-The SDK bundles its own runtime dependencies, including CameraX, OkHttp, LiteRT, and ONNX Runtime. No extra third-party dependency setup is required.
+This sample is built with Gradle 9.1, AGP 8.13.2, Kotlin 2.3.20, and JDK 17. These are the sample's verified build settings, not a blanket minimum for every host app.
+
+An internet connection and a project configured for server analysis are required. The SDK handles its own camera and image-preparation dependencies.
 
 ## Install from Maven Central
 Add Maven Central to your project repositories and pull the SDK into your app module.
@@ -29,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.aiforpet-ttcare:scansdk-lib:2.1.3")
+    implementation("io.github.aiforpet-ttcare:scansdk-lib:3.2.0")
 }
 ```
 The SDK already declares CAMERA and INTERNET permissions, so they are merged into your manifest automatically.
@@ -96,6 +98,9 @@ private final ActivityResultLauncher<Intent> scanLauncher =
 | `enablesQuestionnaire` | Boolean | No | Uses SDK questionnaire flow. Default: `true` |
 | `enableResultView` | Boolean | No | Shows SDK built-in result screen. Default: `true` |
 | `enablePdfShare` | Boolean | No | Shows PDF share button on the built-in result screen. Meaningful when `enableResultView=true` |
+| `enableMultiMode` | Boolean | No | Collects up to four photos and returns a JSON array. Default: `false` |
+
+When `guideUrl` is omitted, SDK 3.2.0 chooses its own localized guide URL. This sample deliberately relies on that default.
 
 ```java
 Intent intent = new Intent(this, EyeCameraActivity.class);
@@ -111,10 +116,10 @@ bundle.putString("petGender", "MC");
 
 bundle.putString("petId", "your_pet_id_123");
 bundle.putString("petName", "Coco");
-bundle.putString("guideUrl", "https://resource-core.aiforpetcdn.com/sdk/guide/en/dog/eye.html");
 bundle.putBoolean("enablesQuestionnaire", true);
 bundle.putBoolean("enableResultView", true);
 bundle.putBoolean("enablePdfShare", true);
+bundle.putBoolean("enableMultiMode", false);
 
 intent.putExtras(bundle);
 scanLauncher.launch(intent);
@@ -134,21 +139,14 @@ scanLauncher.launch(intent);
 ```
 
 ## Understand the result
-The SDK returns a JSON string with the final diagnosis result through `scanLauncher`.
+The SDK returns the server's final result as a JSON string through `scanLauncher`. A single scan returns a JSON object. With `enableMultiMode=true`, the root is a capture-order JSON array even if only one photo was submitted; check each item's status separately.
 
 ### Result status
 * `NORMAL`: no anomalies detected
 * `CAUTION`: mild anomalies detected, observe closely
 * `WARNING`: multiple or stronger anomalies detected, follow-up recommended
 
-When the questionnaire is enabled, the final status reflects both scan output and questionnaire answers.
-
-| Questionnaire answer | AI scan result | Final status |
-| --- | --- | --- |
-| Symptoms present | Abnormal signs detected | `WARNING` |
-| No symptoms | Abnormal signs detected | `CAUTION` |
-| No symptoms | No abnormal signs detected | `NORMAL` |
-| Symptoms present | No abnormal signs detected | `CAUTION` |
+Use the status returned by the server. Questionnaire answers may be present, but the host app must not recalculate or override the final status from them.
 
 ### Display result images
 Heatmaps and crop images are returned as HTTPS URLs. Host apps do not need to read SDK-generated local files; load the returned URL directly with your image loading library.
@@ -346,13 +344,7 @@ class AiForPetApplication : Application() {
 Register your `Application` class in `AndroidManifest.xml` when you use this integration.
 
 ## Proguard
-The SDK ships with consumer Proguard rules, but if camera scanning crashes in release builds, add explicit keep rules:
-
-```proguard
--keep class com.aiforpet.pet.** { *; }
--keep class com.microsoft.onnxruntime.** { *; }
--keep class com.google.ai.edge.litert.** { *; }
-```
+The SDK ships with consumer Proguard rules. Verify a release build and contact TTcare support if a problem occurs only in that build.
 
 ## Integration flow summary
 1. Register `scanLauncher`
@@ -362,11 +354,12 @@ The SDK ships with consumer Proguard rules, but if camera scanning crashes in re
 5. Render returned image URLs directly when needed
 6. Call `LibraryClass.clearSdkScanCache()` after you finish handling the result
 
-## Migration notes from v1.7.x
-* Diagnosis now runs on-device
+## Migrating from earlier Android SDK versions
+* Image preparation remains on-device, while final analysis requires the server and a suitable SDK key
 * Result image references are HTTPS URLs, not local file paths
-* Minimum SDK is now 28
+* The SDK minimum is API 23; the sample app still sets `minSdk 28`
 * SDK authentication is passed through the required `sdkKey` Bundle value
+* Handle a JSON array when `enableMultiMode=true`; the Bundle fields and public result JSON keys are unchanged from 3.1.0
 
 ## Support
 For breed lists, symptom dictionaries, default guide URLs, or integration support, contact the TTcare team.

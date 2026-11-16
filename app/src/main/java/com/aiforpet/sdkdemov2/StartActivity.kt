@@ -23,14 +23,15 @@ import com.aiforpet.pet.check.ToothCameraActivity
 import com.google.android.material.card.MaterialCardView
 
 import org.json.JSONObject
-
-import java.util.Locale
+import org.json.JSONArray
+import org.json.JSONTokener
 
 class StartActivity : AppCompatActivity() {
 
     private lateinit var isenablesQuestionnaire: CheckBox
     private lateinit var isEnableResult: CheckBox
     private lateinit var isEnablePdfShare: CheckBox
+    private lateinit var isEnableMultiMode: CheckBox
 
     private lateinit var mainView: LinearLayout
 
@@ -61,8 +62,11 @@ class StartActivity : AppCompatActivity() {
             if (resultData != null) {
                 try {
                     // Format JSON prettily and output to TextView
-                    val json = JSONObject(resultData)
-                    resultTxt.text = json.toString(4)
+                    resultTxt.text = when (val json = JSONTokener(resultData).nextValue()) {
+                        is JSONObject -> json.toString(4)
+                        is JSONArray -> json.toString(4)
+                        else -> resultData
+                    }
                 } catch (e: Exception) {
                     resultTxt.text = resultData
                 }
@@ -96,6 +100,7 @@ class StartActivity : AppCompatActivity() {
         isenablesQuestionnaire = findViewById(R.id.isenablesQuestionnaire)
         isEnableResult = findViewById(R.id.isEnableResult)
         isEnablePdfShare = findViewById(R.id.isEnablePdfShare)
+        isEnableMultiMode = findViewById(R.id.isEnableMultiMode)
 
         mainView = findViewById(R.id.mainView)
         resultView = findViewById(R.id.resultView)
@@ -118,9 +123,6 @@ class StartActivity : AppCompatActivity() {
         dogEye.setOnClickListener {
             selectPart = "EYE"
             petType = "DOG"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/dog/"
-
             val intent = Intent(this@StartActivity, EyeCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "DOG") // Required
@@ -133,8 +135,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-
-                putString("guideUrl", guideBase + "eye.html")
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -144,9 +145,6 @@ class StartActivity : AppCompatActivity() {
         dogEar.setOnClickListener {
             selectPart = "EAR"
             petType = "DOG"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/dog/"
-
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "DOG") // Required
@@ -159,8 +157,8 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("partType", "EAR") // Required for skin scans
-                putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -170,9 +168,6 @@ class StartActivity : AppCompatActivity() {
         dogBelly.setOnClickListener {
             selectPart = "BODY"
             petType = "DOG"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/dog/"
-
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "DOG") // Required
@@ -185,8 +180,8 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("partType", "BELLY") // Required for skin scans
-                putString("guideUrl", guideBase + "skin.html")
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -196,9 +191,6 @@ class StartActivity : AppCompatActivity() {
         dogFoot.setOnClickListener {
             selectPart = "FOOT"
             petType = "DOG"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/dog/"
-
             val intent = Intent(this@StartActivity, SkinCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "DOG") // Required
@@ -209,10 +201,10 @@ class StartActivity : AppCompatActivity() {
                 putString("petBreedName", "petBreedName") // Optional
                 putString("petGender", "M") // Optional
                 putString("partType", "FOOT") // Required for skin scans
-                putString("guideUrl", guideBase + "skin.html")
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -222,9 +214,6 @@ class StartActivity : AppCompatActivity() {
         dogTooth.setOnClickListener {
             selectPart = "TEETH"
             petType = "DOG"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/dog/"
-
             val intent = Intent(this@StartActivity, ToothCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "DOG") // Required
@@ -237,7 +226,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-                putString("guideUrl", guideBase + "tooth.html")
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -247,9 +236,6 @@ class StartActivity : AppCompatActivity() {
         catEye.setOnClickListener {
             selectPart = "EYE"
             petType = "CAT"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/cat/"
-
             val intent = Intent(this@StartActivity, EyeCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "CAT") // Required
@@ -262,7 +248,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
-                putString("guideUrl", guideBase + "eye.html")
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -272,9 +258,6 @@ class StartActivity : AppCompatActivity() {
         catTooth.setOnClickListener {
             selectPart = "TEETH"
             petType = "CAT"
-            val selectLang = getCurrentLanguageCategory()
-            val guideBase = "https://resource-core.aiforpetcdn.com/sdk/guide/$selectLang/cat/"
-
             val intent = Intent(this@StartActivity, ToothCameraActivity::class.java)
             val bundle = Bundle().apply {
                 putString("petType", "CAT") // Required
@@ -282,6 +265,7 @@ class StartActivity : AppCompatActivity() {
                 putBoolean("enablesQuestionnaire", isenablesQuestionnaire.isChecked) // Optional
                 putBoolean("enableResultView", isEnableResult.isChecked) // Optional
                 putBoolean("enablePdfShare", isEnablePdfShare.isChecked) // Optional
+                putBoolean("enableMultiMode", isEnableMultiMode.isChecked) // Optional
 
                 putString("petId", "petId") // Optional
                 putString("petName", demoPetName) // Optional
@@ -289,7 +273,6 @@ class StartActivity : AppCompatActivity() {
                 putString("petBreedName", "Shih Tzu") // Optional
                 putString("petGender", "M") // Optional
 
-                putString("guideUrl", guideBase + "tooth.html")
                 putString("sdkKey", sdkKey) // Required
             }
             intent.putExtras(bundle)
@@ -297,16 +280,4 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
-        fun getCurrentLanguageCategory(): String {
-            val currentLocale = Locale.getDefault()
-            val languageCode = currentLocale.language // ex: "ko", "ja", "en"
-
-            return when (languageCode) {
-                "ko" -> "ko"
-                "ja" -> "ja"
-                else -> "en" // Classify as 'global' if not Korean or Japanese
-            }
-        }
-    }
 }
