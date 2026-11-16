@@ -101,6 +101,30 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="enableMultiMode"
+                android:textStyle="bold"
+                android:textColor="@color/color_ffffff"
+                android:paddingLeft="20dp"
+                android:textSize="14dp"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical" />
+
+            <CheckBox
+                android:id="@+id/isEnableMultiMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="match_parent"
